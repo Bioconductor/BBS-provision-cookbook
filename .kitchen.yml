@@ -1,9 +1,20 @@
 ---
 driver:
-  name: vagrant
+  # name: vagrant
+  name: ec2
+  aws_ssh_key_id: bioc-default
+  region: us-east-1
+  require_chef_omnibus: true
+  instance_type: t2.large
+  security_group_ids: ["sg-308ba149"]
+  subnet_id: subnet-d66a05ec
+  availability_zone: us-east-1a
+
+transport:
+    ssh_key: /Users/dtenenba/.ec2/bioc-default.pem
+    username: ubuntu
 
 provisioner:
-  #name: chef_solo
   name: chef_zero
   client_rb:
       audit_mode: :enabled
@@ -15,16 +26,13 @@ provisioner:
 #   name: inspec
 
 platforms:
-  - name: ubuntu-14.04
+# - name: ubuntu-14.04
+ - name: ubuntu-16.04
+   driver:
+      # FIXME make AMI disk bigger and save as new AMI, add AMI ID here:
+      image_id: ami-70dad51a
 
 suites:
   - name: default
     run_list:
       - recipe[BBS-provision-cookbook::default]
-    attributes:
-      bioc_version: "3.3"
-      r_version: "3.3"
-      use_r_devel: false
-      hostname:
-          bioc_devel_builder: linux1.bioconductor.org
-          bioc_release_builder: linux2.bioconductor.org

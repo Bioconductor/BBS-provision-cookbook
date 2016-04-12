@@ -1,4 +1,13 @@
 include_recipe 'apt'
+resources(execute: 'apt-get update').run_action(:run)
+
+package "language-pack-en"
+
+if node['is_bioc_devel']
+  reldev = :dev
+else
+  reldev = :rel
+end
 
 execute "change time zone" do
     user "root"
@@ -36,7 +45,7 @@ control_group 'biocbuild' do
 end
 
 
-bbsdir = "/home/biocbuild/bbs-#{node['bioc_version']}-bioc"
+bbsdir = "/home/biocbuild/bbs-#{node['bioc_version'][reldev]}-bioc"
 
 directory bbsdir do
     owner "biocbuild"
@@ -81,7 +90,7 @@ end
     end
 end
 
-%W(src public_html public_html/BBS public_html/BBS/#{node['bioc_version']} public_html/BBS/#{node['bioc_version']}/bioc).each do |dir|
+%W(src public_html public_html/BBS public_html/BBS/#{node['bioc_version'][reldev]} public_html/BBS/#{node['bioc_version'][reldev]}/bioc).each do |dir|
     directory "/home/biocbuild/#{dir}" do
         owner "biocbuild"
         group "biocbuild"
@@ -90,7 +99,6 @@ end
     end
 end
 
-resources(execute: 'apt-get update').run_action(:run)
 
 package "subversion"
 
@@ -108,33 +116,49 @@ base_url = "https://hedgehog.fhcrc.org/bioconductor"
 if node['is_bioc_devel']
     branch = 'trunk'
 else
-    branch = "branches/RELEASE_#{yamlconfig['bioc_version'].sub(".", "_")}"
+    branch = "branches/RELEASE_#{node['bioc_version'][reldev].sub(".", "_")}"
 end
 
 svn_meat_url = "#{base_url}/#{branch}/madman/Rpacks"
 
-# TODO, put svn creds in encrypted data bag, check out meat
+execute 'shallow MEAT0 checkout' do
+  command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_meat_url} MEAT0"
+  cwd bbsdir
+  user 'biocbuild'
+end
+
+control_group 'MEAT0 checkout group' do
+  control 'MEAT0 checkout' do
+    it 'should have .svn dir' do
+      expect(file("#{bbsdir}/MEAT0/.svn")).to exist
+      expect(file("#{bbsdir}/MEAT0/.svn")).to be_directory
+      expect(file("#{bbsdir}/MEAT0/.svn")).to be_owned_by "biocbuild"
+    end
+  end
+end
+
+
 
 
 %w(libnetcdf-dev libhdf5-serial-dev sqlite libfftw3-dev libfftw3-doc
     libopenbabel-dev fftw3 fftw3-dev pkg-config xfonts-100dpi xfonts-75dpi
     libopenmpi-dev openmpi-bin mpi-default-bin openmpi-common
-    libexempi3 openmpi-checkpoint python-mpi4py texlive-science
+    libexempi3 openmpi-doc texlive-science python-mpi4py
     texlive-bibtex-extra texlive-fonts-extra fortran77-compiler gfortran
     libreadline-dev libx11-dev libxt-dev texinfo apache2 libxml2-dev
-    libcurl4-openssl-dev libcurl4-nss-dev Xvfb  libpng12-dev
-    libjpeg62-dev libcairo2-dev libcurl4-gnutls-dev libtiff4-dev
-    tcl8.5-dev tk8.5-dev libicu-dev libgsl0ldbl libgsl0-dev
-    libgtk2.0-dev gcj-4.8 openjdk-7-jdk texlive-latex-extra
+    libcurl4-openssl-dev libcurl4-nss-dev xvfb  libpng12-dev
+    libjpeg62-dev libcairo2-dev libcurl4-gnutls-dev libtiff5-dev
+    tcl8.5-dev tk8.5-dev libicu-dev libgsl2 libgsl0-dev
+    libgtk2.0-dev gcj-4.8 openjdk-8-jdk texlive-latex-extra
     texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
-    htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev
+    htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
         # causes an error. hmmm.
         # texlive-science seems to be the culprit
         # also texlive-fonts-extra
-        timeout 10000
+        # timeout 10000
         action :install
     end
 end
@@ -147,17 +171,61 @@ git "/home/biocbuild/BBS" do
   user 'biocbuild'
 end
 
+directory "#{bbsdir}/rbuild" do
+  action :create
+  user 'biocbuild'
+end
 
+remote_file "#{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}" do
+  source node['r_url'][reldev]
+  user 'biocbuild'
+end
+
+execute "untar R" do
+  command "tar zxf #{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}"
+  user 'biocbuild'
+  cwd "#{bbsdir}/rbuild"
+  not_if {File.exists? "#{bbsdir}/rbuild/#{node['r_src_dir']}"}
+end
+
+
+execute "build R" do
+  command "#{bbsdir}/rbuild/#{node['r_src_dir']}/configure --enable-R-shlib && make -j"
+  user 'biocbuild'
+  cwd "#{bbsdir}/R"
+  not_if {File.exists? "#{bbsdir}/R/Makefile"}
+end
+
+execute "set R flags" do
+  command "/home/biocbuild/BBS/utils/R-fix-flags.sh"
+  user "biocbuild"
+  cwd "#{bbsdir}/R/etc"
+  not_if {File.exists? "#{bbsdir}/R/etc/Makeconf.original"}
+end
+
+execute "set up arp alias" do
+  command %Q(echo 'alias arp="export PATH=$PATH:$HOME/bbs-#{node['bioc_version'][reldev]}-bioc/R/bin"' >> /home/biocbuild/.bash_profile)
+  cwd "/home/biocbuild"
+  user "biocbuild"
+  not_if "grep -q arp /home/biocbuild/.bash_profile"
+end
+
+execute "install BiocInstaller" do
+  command %Q(#{bbsdir}/R/bin/R -e "source('https://bioconductor.org/biocLite.R')")
+  user "biocbuild"
+  not_if {File.exists? "#{bbsdir}/R/library/BiocInstaller"}
+end
+
+# FIXME run useDevel() if appropriate
+
+link "/var/www/html/BBS" do
+    to "/home/biocbuild/public_html/BBS"
+end
 
 
 __END__
 
 require 'yaml'
-
-# FIXME - run apt-get update before doing other stuff, but read
-# https://stackoverflow.com/questions/9246786/how-can-i-get-chef-to-run-apt-get-update-before-running-other-recipes
-# and
-# https://wiki.opscode.com/display/chef/Evaluate+and+Run+Resources+at+Compile+Time;jsessionid=BBE750D0DC249823649B3F4F70F24C82
 
 yamlconfig = YAML.load_file "/vagrant/config.yml"
 
@@ -170,112 +238,10 @@ execute "set hostname on aws" do
     only_if "curl -I http://169.254.169.254/latest/meta-data/ && grep -vq #{yamlconfig['hostname']} /etc/hosts"
 end
 
-link "/var/www/html/BBS" do
-    to "/home/biocbuild/public_html/BBS"
-end
 
 # TODO get ssh key from encrypted data bag
 
-# download and install R...
-# http://cran.r-project.org/src/base/R-3/R-3.1.1.tar.gz
 
-r_url = "http://cran.r-project.org/src/base/R-#{rmajor}/#{yamlconfig['r_version']}.tar.gz"
-srcfile = "/home/biocbuild/src/#{yamlconfig['r_version']}.tar.gz"
-
-
-
-
-package "subversion" do
-    action :install
-end
-
-directory "/root/.subversion/servers" do
-    action :create
-    recursive true
-    owner "root"
-    group "root"
-    mode "0777"
-end
-
-execute "setup svn auth" do
-    cwd "/home/biocbuild"
-    user "biocbuild"
-    command "tar zxf /vagrant/svnauth.tar.gz"
-end
-
-execute "setup svn auth2" do
-    cwd "/root"
-    user "root"
-    command "tar zxf /vagrant/svnauth.tar.gz"
-end
-
-
-# execute "atest" do
-#     user "biocbuild"
-#     environment({"SVN_PASS" => yamlconfig['svn_password']})
-#     #command "svn co --non-interactive --no-auth-cache --username biocbuild --password $SVN_PASS #{svn_meat_url} MEAT0"
-#     cwd "#{bbsdir}"
-#     command "whoami > whoami.txt"
-# ####uncomment_this    not_if {File.exists? "#{bbsdir}/MEAT0"}
-#     # rely on STAGE1 to 'svn up' MEAT0
-# end
-
-# subversion "check out meat" do
-#     repository svn_meat_url
-#     #revision "HEAD__"
-#     destination "#{bbsdir}/MEAT0"
-#     action :checkout
-#     user "biocbuild"
-#     svn_username "biocbuild"
-#     svn_password yamlconfig['svn_password']
-# end
-
-
-execute "this is a bad idea" do
-    # ... but it makes svn happy below. don't know
-    # why biocbuild needs to see root's svn credentials
-    user "root"
-    command "chmod -R a+rx /root"
-end
-
-execute "checkout meat" do
-    user "biocbuild"
-    environment({"SVN_PASS" => yamlconfig['svn_password']})
-    command "svn checkout --non-interactive --username biocbuild --password $SVN_PASS #{svn_meat_url} MEAT0"
-    cwd "#{bbsdir}"
-    not_if {File.exists? "#{bbsdir}/MEAT0"}
-    timeout 21600
-    # rely on STAGE1 to 'svn up' MEAT0
-end
-
-
-
-
-remote_file "copy ssh key" do
-    path "/home/biocbuild/.ssh/id_rsa"
-    source "file:///vagrant/id_rsa"
-    owner "biocbuild"
-    group "biocbuild"
-    mode 0400
-    not_if {File.exists? "/home/biocbuild/.ssh/id_rsa"}
-end
-
-remote_file "copy ssh key2" do
-    path "/home/biocbuild/.BBS/id_rsa"
-    source "file:///vagrant/id_rsa"
-    owner "biocbuild"
-    group "biocbuild"
-    mode 0400
-    not_if {File.exists? "/home/biocbuild/.BBS/id_rsa"}
-end
-
-remote_file "copy ssh config" do
-    path "/home/biocbuild/.ssh/config"
-    source "file:///vagrant/config"
-    owner "biocbuild"
-    group "biocbuild"
-    mode 0755
-end
 
 execute "add public key" do
     user "biocbuild"
@@ -291,44 +257,12 @@ execute "add USER to crontab" do
 end
 
 
-remote_file srcfile do
-    source r_url
-end
-
-execute "untar R" do
-    action :run
-    user "biocbuild"
-    cwd "/home/biocbuild/src"
-    command "tar zxf #{srcfile}"
-    not_if {File.exists? "/home/biocbuild/src/#{yamlconfig['r_version']}"}
-end
-
-execute "build R" do
-    action :run
-    user "biocbuild"
-    cwd "#{bbsdir}/R"
-    command "/home/biocbuild/src/#{yamlconfig['r_version']}/configure --enable-R-shlib && make"
-    not_if {File.exists? "#{bbsdir}/R/bin/R"}
-end
-
-# download biocinstaller? set devel?
-
-execute "set R flags" do
-    action :run
-    user "biocbuild"
-    cwd "#{bbsdir}/R/etc"
-    # this script still exits with code 1.
-    command "/home/biocbuild/BBS/utils/R-fix-flags.sh"
-    not_if {File.exists? "#{bbsdir}/R/etc/Makeconf.original"}
-end
-
 execute "javareconf" do
     action :run
     user "biocbuild"
     command "#{bbsdir}/R/bin/R CMD javareconf"
 end
 
-# install apache and set it up...
 
 # install stuff that needs to be built 'manually'
 
@@ -344,16 +278,9 @@ end
 ## IMPORTANT: Make sure this is started AFTER 'biocbuild' has finished its "run.sh" job on ALL other nodes!
 # 45 08 * * * cd /home/biocbuild/BBS/3.0/bioc/bbsvm && ./postrun.sh >>/home/biocbuild/bbs-3.0-bioc/log/bbsvm.log 2>&1
 
-# put R in user path?
 
 # allow biocbuild to sudo?
 
-execute "put R in user path" do
-    user "biocbuild"
-    cwd "/home/biocbuild"
-    command "echo 'export PATH=\$PATH:#{bbsdir}/R/bin' >> .bashrc"
-    not_if "grep -q #{bbsdir} /home/biocbuild/.bashrc"
-end
 
 remote_file "copy texmf config" do
     path "/etc/texmf/texmf.d/01bioc.cnf"
