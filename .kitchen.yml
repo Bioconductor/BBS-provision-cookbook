@@ -5,6 +5,8 @@ driver:
 provisioner:
   #name: chef_solo
   name: chef_zero
+  client_rb:
+      audit_mode: :enabled
   data_path: test/shared
 
 # Uncomment the following verifier to leverage Inspec instead of Busser (the
@@ -22,4 +24,7 @@ suites:
     attributes:
       bioc_version: "3.3"
       r_version: "3.3"
-      use_r_devel: true
+      use_r_devel: false
+      hostname:
+          bioc_devel_builder: linux1.bioconductor.org
+          bioc_release_builder: linux2.bioconductor.org

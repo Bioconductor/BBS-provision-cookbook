@@ -1,36 +1,20 @@
-
-file "/tmp/foo" do
-  action :create
-  content node['bioc_version']
-end
-
-
-__END__
-
-require 'yaml'
-
-# FIXME - run apt-get update before doing other stuff, but read
-# https://stackoverflow.com/questions/9246786/how-can-i-get-chef-to-run-apt-get-update-before-running-other-recipes
-# and
-# https://wiki.opscode.com/display/chef/Evaluate+and+Run+Resources+at+Compile+Time;jsessionid=BBE750D0DC249823649B3F4F70F24C82
-
-yamlconfig = YAML.load_file "/vagrant/config.yml"
-
-rmajor = yamlconfig["r_version"].sub(/^R-/, "").split("").first
-
-execute "set hostname on aws" do
-    command "echo '127.0.0.1 #{yamlconfig['hostname']}' >> /etc/hosts"
-    #FIXME, guard doesn't work, line keeps getting appended.
-    # does it also happen when not using AWS?
-    only_if "curl -I http://169.254.169.254/latest/meta-data/ && grep -vq #{yamlconfig['hostname']} /etc/hosts"
-end
-
+include_recipe 'apt'
 
 execute "change time zone" do
     user "root"
-    command "echo '#{yamlconfig['timezone']}' > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata"
+    command "echo '#{node['time_zone']}' > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata"
     only_if "egrep -q 'UTC|GMT' /etc/timezone"
 end
+
+control_group 'time zone' do
+  control 'should be set properly' do
+    it 'should not be UTC/GMT' do
+      expect(file('/etc/timezone')).not_to contain(/UTC|GMT/)
+    end
+  end
+end
+
+# TODO set hostname
 
 user "biocbuild" do
     supports :manage_home => true
@@ -39,7 +23,20 @@ user "biocbuild" do
     action :create
 end
 
-bbsdir = "/home/biocbuild/bbs-#{yamlconfig['bioc_version']}-bioc"
+
+control_group 'biocbuild' do
+  control 'biocbuild user' do
+    it 'should exist' do
+      expect(file('/etc/passwd')).to contain(/biocbuild/)
+      expect(file('/home/biocbuild')).to exist
+      expect(file('/home/biocbuild')).to be_directory
+      expect(file('/home/biocbuild')).to be_owned_by('biocbuild')
+    end
+  end
+end
+
+
+bbsdir = "/home/biocbuild/bbs-#{node['bioc_version']}-bioc"
 
 directory bbsdir do
     owner "biocbuild"
@@ -47,6 +44,19 @@ directory bbsdir do
     mode "0755"
     action :create
 end
+
+
+
+control_group "bbsdir group" do
+  control bbsdir do
+    it 'should exist' do
+      expect(file(bbsdir)).to exist
+      expect(file(bbsdir)).to be_directory
+      expect(file(bbsdir)).to be_owned_by('biocbuild')
+    end
+  end
+end
+
 
 directory "/home/biocbuild/.ssh" do
     owner "biocbuild"
@@ -71,26 +81,109 @@ end
     end
 end
 
-%W(src public_html public_html/BBS public_html/BBS/#{yamlconfig['bioc_version']} public_html/BBS/#{yamlconfig['bioc_version']}/bioc).each do |dir|
+%W(src public_html public_html/BBS public_html/BBS/#{node['bioc_version']} public_html/BBS/#{node['bioc_version']}/bioc).each do |dir|
     directory "/home/biocbuild/#{dir}" do
         owner "biocbuild"
         group "biocbuild"
         mode "0755"
         action :create
     end
+end
 
+resources(execute: 'apt-get update').run_action(:run)
+
+package "subversion"
+
+control_group 'package subversion group' do
+  control 'package subversion' do
+    it 'should be installed' do
+      expect(package('subversion')).to be_installed
+    end
+  end
 end
 
 
 
 base_url = "https://hedgehog.fhcrc.org/bioconductor"
-if yamlconfig['use_devel']
+if node['is_bioc_devel']
     branch = 'trunk'
 else
     branch = "branches/RELEASE_#{yamlconfig['bioc_version'].sub(".", "_")}"
 end
 
 svn_meat_url = "#{base_url}/#{branch}/madman/Rpacks"
+
+# TODO, put svn creds in encrypted data bag, check out meat
+
+
+%w(libnetcdf-dev libhdf5-serial-dev sqlite libfftw3-dev libfftw3-doc
+    libopenbabel-dev fftw3 fftw3-dev pkg-config xfonts-100dpi xfonts-75dpi
+    libopenmpi-dev openmpi-bin mpi-default-bin openmpi-common
+    libexempi3 openmpi-checkpoint python-mpi4py texlive-science
+    texlive-bibtex-extra texlive-fonts-extra fortran77-compiler gfortran
+    libreadline-dev libx11-dev libxt-dev texinfo apache2 libxml2-dev
+    libcurl4-openssl-dev libcurl4-nss-dev Xvfb  libpng12-dev
+    libjpeg62-dev libcairo2-dev libcurl4-gnutls-dev libtiff4-dev
+    tcl8.5-dev tk8.5-dev libicu-dev libgsl0ldbl libgsl0-dev
+    libgtk2.0-dev gcj-4.8 openjdk-7-jdk texlive-latex-extra
+    texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
+    htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev
+).each do |pkg|
+    package pkg do
+        # this might timeout, but adding a 'timeout' here
+        # causes an error. hmmm.
+        # texlive-science seems to be the culprit
+        # also texlive-fonts-extra
+        timeout 10000
+        action :install
+    end
+end
+
+package 'git'
+
+git "/home/biocbuild/BBS" do
+  repository node['bbs_repos']
+  revision node['bbs_branch']
+  user 'biocbuild'
+end
+
+
+
+
+__END__
+
+require 'yaml'
+
+# FIXME - run apt-get update before doing other stuff, but read
+# https://stackoverflow.com/questions/9246786/how-can-i-get-chef-to-run-apt-get-update-before-running-other-recipes
+# and
+# https://wiki.opscode.com/display/chef/Evaluate+and+Run+Resources+at+Compile+Time;jsessionid=BBE750D0DC249823649B3F4F70F24C82
+
+yamlconfig = YAML.load_file "/vagrant/config.yml"
+
+rmajor = yamlconfig["r_version"].sub(/^R-/, "").split("").first
+
+execute "set hostname on aws" do
+    command "echo '127.0.0.1 #{yamlconfig['hostname']}' >> /etc/hosts"
+    #FIXME, guard doesn't work, line keeps getting appended.
+    # does it also happen when not using AWS?
+    only_if "curl -I http://169.254.169.254/latest/meta-data/ && grep -vq #{yamlconfig['hostname']} /etc/hosts"
+end
+
+link "/var/www/html/BBS" do
+    to "/home/biocbuild/public_html/BBS"
+end
+
+# TODO get ssh key from encrypted data bag
+
+# download and install R...
+# http://cran.r-project.org/src/base/R-3/R-3.1.1.tar.gz
+
+r_url = "http://cran.r-project.org/src/base/R-#{rmajor}/#{yamlconfig['r_version']}.tar.gz"
+srcfile = "/home/biocbuild/src/#{yamlconfig['r_version']}.tar.gz"
+
+
+
 
 package "subversion" do
     action :install
@@ -155,37 +248,8 @@ execute "checkout meat" do
     # rely on STAGE1 to 'svn up' MEAT0
 end
 
-%w(    libnetcdf-dev libhdf5-serial-dev sqlite libfftw3-dev libfftw3-doc
-    libopenbabel-dev fftw3 fftw3-dev pkg-config xfonts-100dpi xfonts-75dpi
-    libopenmpi-dev openmpi-bin mpi-default-bin openmpi-common
-    libexempi3 openmpi-checkpoint python-mpi4py texlive-science
-    texlive-bibtex-extra texlive-fonts-extra fortran77-compiler gfortran
-    libreadline-dev libx11-dev libxt-dev texinfo apache2 libxml2-dev
-    libcurl4-openssl-dev libcurl4-nss-dev Xvfb  libpng12-dev
-    libjpeg62-dev libcairo2-dev libcurl4-gnutls-dev libtiff4-dev
-    tcl8.5-dev tk8.5-dev libicu-dev libgsl0ldbl libgsl0-dev
-    libgtk2.0-dev gcj-4.8 openjdk-7-jdk texlive-latex-extra
-    texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
-    htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev
-).each do |pkg|
-    package pkg do
-        # this might timeout, but adding a 'timeout' here
-        # causes an error. hmmm.
-        # texlive-science seems to be the culprit
-        # also texlive-fonts-extra
-        action :install
-    end
-end
 
 
-link "/var/www/html/BBS" do
-    to "/home/biocbuild/public_html/BBS"
-end
-
-
-package "git" do
-    action :install
-end
 
 remote_file "copy ssh key" do
     path "/home/biocbuild/.ssh/id_rsa"
@@ -226,37 +290,6 @@ execute "add USER to crontab" do
     not_if "crontab -l|grep 'USER=biocbuild'"
 end
 
-execute "check out forked BBS" do
-    user "biocbuild"
-    cwd "/home/biocbuild"
-    action :run
-    environment({"GIT_TRACE" => "1", "GIT_SSH" => "/vagrant/ssh"})
-    command "git clone git@cloud.bioconductor.org:/home/git/BBS-fork.git BBS"
-    #command "git clone git@cloud.bioconductor.org:/home/git/BBS-fork.git BBS"
-    not_if {File.exists? "/home/biocbuild/BBS"}
-end
-
-execute "update forked BBS" do
-    user "biocbuild"
-    cwd "/home/biocbuild/BBS"
-    action :run
-    environment ({"GIT_TRACE"=>"1", "GIT_SSH"=>"/vagrant/ssh"})
-    command "git pull"
-    only_if {File.exists? "/home/biocbuild/BBS"}
-end
-
-
-
-# check out (forked) BBS
-# from git@cloud.bioconductor.org:/home/git/BBS-fork.git
-# set machine name in config.yml, make sure BBS knows about it
-# and sees it as the main builder
-
-# download and install R...
-# http://cran.r-project.org/src/base/R-3/R-3.1.1.tar.gz
-
-r_url = "http://cran.r-project.org/src/base/R-#{rmajor}/#{yamlconfig['r_version']}.tar.gz"
-srcfile = "/home/biocbuild/src/#{yamlconfig['r_version']}.tar.gz"
 
 remote_file srcfile do
     source r_url
