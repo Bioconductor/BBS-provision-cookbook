@@ -9,6 +9,8 @@ else
   reldev = :rel
 end
 
+bioc_version = node['bioc_version'][reldev]
+r_version = node['r_version'][reldev]
 execute "change time zone" do
     user "root"
     command "echo '#{node['time_zone']}' > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata"
@@ -173,12 +175,12 @@ end
 
 directory "#{bbsdir}/rbuild" do
   action :create
-  user 'biocbuild'
+  owner 'biocbuild'
 end
 
 remote_file "#{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}" do
   source node['r_url'][reldev]
-  user 'biocbuild'
+  owner 'biocbuild'
 end
 
 execute "untar R" do
@@ -220,6 +222,120 @@ end
 
 link "/var/www/html/BBS" do
     to "/home/biocbuild/public_html/BBS"
+end
+
+# biocadmin
+
+user "biocadmin" do
+    supports :manage_home => true
+    home "/home/biocadmin"
+    shell "/bin/bash"
+    action :create
+end
+
+
+%W(bin InstalledPkgs tmp rbuild
+PACKAGES/#{bioc_version}
+PACKAGES/#{bioc_version}/biocViews
+PACKAGES/#{bioc_version}/bioc
+PACKAGES/#{bioc_version}/bioc/src/contrib
+PACKAGES/#{bioc_version}/bioc/bin/windows/contrib/#{r_version}
+PACKAGES/#{bioc_version}/bioc/bin/macosx/contrib/#{r_version}
+PACKAGES/#{bioc_version}/bioc/bin/macosx/mavericks/contrib/#{r_version}
+PACKAGES/#{bioc_version}/data/experiment
+PACKAGES/#{bioc_version}/data/experiment/src/contrib
+PACKAGES/#{bioc_version}/data/experiment/bin/windows/contrib/#{r_version}
+PACKAGES/#{bioc_version}/data/experiment/bin/macosx/contrib/#{r_version}
+PACKAGES/#{bioc_version}/data/experiment/bin/macosx/mavericks/contrib/#{r_version}
+PACKAGES/#{bioc_version}/data/annotation
+PACKAGES/#{bioc_version}/data/annotation/src/contrib
+PACKAGES/#{bioc_version}/data/annotation/bin/windows/contrib/#{r_version}
+PACKAGES/#{bioc_version}/data/annotation/bin/macosx/contrib/#{r_version}
+PACKAGES/#{bioc_version}/data/annotation/bin/macosx/mavericks/contrib/#{r_version}
+PACKAGES/#{bioc_version}/extra
+PACKAGES/#{bioc_version}/extra/src/contrib
+PACKAGES/#{bioc_version}/extra/bin/windows/contrib/#{r_version}
+PACKAGES/#{bioc_version}/extra/bin/macosx/contrib/#{r_version}
+PACKAGES/#{bioc_version}/extra/bin/macosx/mavericks/contrib/#{r_version}
+cron.log/#{bioc_version}
+).each do |dir|
+  directory "/home/biocadmin/#{dir}" do
+    owner "biocadmin"
+    action :create
+    recursive true
+  end
+end
+
+%W(BiocInstaller biocViews DynDoc graph).each do |pkg|
+  directory "/home/biocadmin/InstalledPkgs/#{pkg}" do
+    action :create
+    owner 'biocadmin'
+  end
+  subversion "/home/biocadmin/InstalledPkgs/#{pkg}" do
+    user "biocadmin"
+    svn_username "readonly"
+    svn_password "readonly"
+    repository "https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/#{pkg}"
+    action :sync
+  end
+end
+
+git "/home/biocadmin/BBS" do
+  user "biocadmin"
+  repository node['bbs_repos']
+  revision node['bbs_branch']
+end
+
+link "/home/biocadmin/manage-BioC-repos"  do
+  to "/home/biocadmin/BBS/manage-BioC-repos"
+  owner "biocadmin"
+end
+
+%W(bioc data/annotation data/experiment extra).each do |dir|
+  link "/home/biocadmin/PACKAGES/#{bioc_version}/#{dir}/bin/windows64" do
+    to "/home/biocadmin/PACKAGES/#{bioc_version}/#{dir}/bin/windows"
+    owner "biocadmin"
+  end
+end
+
+# install R
+# install knitcitations
+# install all pkgs in ~/InstalledPkgs
+
+
+
+
+remote_file "/home/biocadmin/rbuild/#{node['r_url'][reldev].split("/").last}" do
+  source node['r_url'][reldev]
+  owner 'biocadmin'
+end
+
+execute "untar R" do
+  command "tar zxf /home/biocadmin/rbuild/#{node['r_url'][reldev].split("/").last} && mv #{node['r_src_dir']} /home/biocadmin/R-#{r_version}"
+  user 'biocadmin'
+  cwd "/home/biocadmin/rbuild"
+  not_if {File.exists? "/home/biocadmin/R-#{r_version}"}
+end
+
+
+
+execute "build R" do
+  command "./configure --enable-R-shlib && make -j"
+  user 'biocadmin'
+  cwd "/home/biocadmin/R-#{r_version}/"
+  not_if {File.exists? "/home/biocadmin/R-#{r_version}/config.log"}
+end
+
+# should really install these from ~/InstalledPkgs but this is easier.
+execute "install pkgs needed by biocadmin" do
+  user 'biocadmin'
+  command %Q(/home/biocadmin/R-#{r_version}/bin/R -e "source('https://bioconductor.org/biocLite.R');biocLite(c('biocViews','DynDoc','graph','knitcitations'))")
+  not_if {File.exists? "/home/biocadmin/R-#{r_version}/library/knitcitations"}
+end
+
+link "/home/biocadmin/bin/R-#{r_version}" do
+  owner 'biocadmin'
+  to "/home/biocadmin/R-#{r_version}/bin/R"
 end
 
 
