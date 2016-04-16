@@ -7,6 +7,6 @@ default['hostname'] = {dev: "linux2.bioconductor.org",
 default['time_zone'] = "America/New_York"
 default['bbs_repos'] = 'https://github.com/Bioconductor/BBS'
 default['bbs_branch'] = 'master' # FIXME change me, probably
-default['r_url'] = {rel: 'https://cran.rstudio.com/src/base-prerelease/R-beta_2016-04-10_r70465.tar.gz',
-  dev: 'https://cran.rstudio.com/src/base-prerelease/R-beta_2016-04-10_r70465.tar.gz'}
+default['r_url'] = {rel: 'https://cran.rstudio.com/src/base-prerelease/R-latest.tar.gz',
+  dev: 'https://cran.rstudio.com/src/base-prerelease/R-latest.tar.gz'}
 default['r_src_dir'] = 'R-beta'

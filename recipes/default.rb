@@ -101,6 +101,25 @@ end
     end
 end
 
+# data experiment
+dataexpdir = bbsdir.sub(/bioc$/, "data-experiment")
+
+directory dataexpdir do
+  action :create
+  owner "biocbuild"
+end
+
+
+%w(log NodeInfo svninfo meat STAGE2_tmp).each do |dir|
+    directory "#{dataexpdir}/#{dir}" do
+        owner "biocbuild"
+        group "biocbuild"
+        mode "0755"
+        action :create
+    end
+end
+
+
 
 package "subversion"
 
@@ -115,6 +134,7 @@ end
 
 
 base_url = "https://hedgehog.fhcrc.org/bioconductor"
+base_data_url = "https://hedgehog.fhcrc.org/bioc-data"
 if node['is_bioc_devel']
     branch = 'trunk'
 else
@@ -123,11 +143,20 @@ end
 
 svn_meat_url = "#{base_url}/#{branch}/madman/Rpacks"
 
+dataexp_meat_url = "#{base_data_url}/#{branch}/experiment/pkgs"
+
 execute 'shallow MEAT0 checkout' do
   command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_meat_url} MEAT0"
   cwd bbsdir
   user 'biocbuild'
 end
+
+execute 'shallow MEAT0 checkout (data-experiment)' do
+  command "svn co --depth empty --non-interactive --username readonly --password readonly #{dataexp_meat_url} MEAT0"
+  cwd dataexpdir
+  user 'biocbuild'
+end
+
 
 control_group 'MEAT0 checkout group' do
   control 'MEAT0 checkout' do
