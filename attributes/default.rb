@@ -10,3 +10,5 @@ default['bbs_branch'] = 'master' # FIXME change me, probably
 default['r_url'] = {rel: 'https://cran.rstudio.com/src/base-prerelease/R-latest.tar.gz',
   dev: 'https://cran.rstudio.com/src/base-prerelease/R-latest.tar.gz'}
 default['r_src_dir'] = 'R-beta'
+default['root_url'] = {dev: "https://root.cern.ch/download/root_v5.34.36.source.tar.gz",
+  rel: "https://root.cern.ch/download/root_v5.34.36.source.tar.gz"}

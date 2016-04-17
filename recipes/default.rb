@@ -183,6 +183,7 @@ end
     libgtk2.0-dev gcj-4.8 openjdk-8-jdk texlive-latex-extra
     texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
     htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
+    libxpm-dev
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
@@ -365,6 +366,42 @@ end
 link "/home/biocadmin/bin/R-#{r_version}" do
   owner 'biocadmin'
   to "/home/biocadmin/R-#{r_version}/bin/R"
+end
+
+
+# ROOT
+
+remote_file "/tmp/#{node['root_url'][reldev].split("/").last}" do
+  source node['root_url'][reldev]
+end
+
+directory "/tmp/rootbuild" do
+  action :create
+end
+
+execute "build root" do
+  cwd "/tmp/rootbuild"
+  command "tar zxf /tmp/#{node['root_url'][reldev].split("/").last} && cd root && ./configure --prefix=/usr/local/root && make && make install"
+  not_if {File.exists? "/tmp/rootbuild/root"}
+end
+
+
+file "/etc/ld.so.conf.d/ROOT.conf" do
+  content "/usr/local/root/lib/root"
+end
+
+execute "ldconfig" do
+  command "ldconfig"
+end
+
+execute "add root to path" do
+  command "echo 'export PATH=$PATH:/usr/local/root/bin' >> /etc/profile"
+  not_if "grep -q /usr/local/root/bin /etc/profile"
+end
+
+execute "add rootsys" do
+  command "echo 'export ROOTSYS=/usr/local/root' >> /etc/profile"
+  not_if "grep -q ROOTSYS /etc/profile"
 end
 
 
