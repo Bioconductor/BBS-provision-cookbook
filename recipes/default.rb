@@ -1,6 +1,8 @@
 include_recipe 'apt'
 resources(execute: 'apt-get update').run_action(:run)
 
+raise "ec2 fix sudo bs"
+
 package "language-pack-en"
 
 if node['is_bioc_devel']
@@ -13,17 +15,18 @@ bioc_version = node['bioc_version'][reldev]
 r_version = node['r_version'][reldev]
 execute "change time zone" do
     user "root"
-    command "echo '#{node['time_zone']}' > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata"
-    only_if "egrep -q 'UTC|GMT' /etc/timezone"
+    command "rm -f /etc/localtime && ln -sf /usr/share/zoneinfo/#{node['time_zone']} /etc/localtime"
+    only_if "file /etc/localtime | grep -q #{node['time_zone']}"
 end
 
 control_group 'time zone' do
   control 'should be set properly' do
-    it 'should not be UTC/GMT' do
-      expect(file('/etc/timezone')).not_to contain(/UTC|GMT/)
+    describe command("file /etc/localtime") do
+      its(:stdout) { should_not match /UTC|GMT/}
     end
   end
 end
+
 
 # TODO set hostname
 
@@ -183,7 +186,7 @@ end
     libgtk2.0-dev gcj-4.8 openjdk-8-jdk texlive-latex-extra
     texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
     htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
-    libxpm-dev
+    libxpm-dev liblapack-dev
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
@@ -404,6 +407,18 @@ execute "add rootsys" do
   not_if "grep -q ROOTSYS /etc/profile"
 end
 
+# jags
+
+remote_file "/tmp/#{node['jags_url'][reldev].split('/').last}" do
+  source node['jags_url'][reldev]
+end
+
+execute "build jags" do
+  command "tar zxf #{node['jags_url'][reldev].split('/').last} && cd #{node['jags_dir'][reldev]} && ./configure && make && make install"
+  cwd "/tmp"
+end
+
+raise "jags pkgconfig"
 
 __END__
 
