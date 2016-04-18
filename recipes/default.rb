@@ -186,7 +186,7 @@ end
     libgtk2.0-dev gcj-4.8 openjdk-8-jdk texlive-latex-extra
     texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
     htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
-    libxpm-dev liblapack-dev
+    libxpm-dev liblapack-dev libv8-3.14-dev
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
