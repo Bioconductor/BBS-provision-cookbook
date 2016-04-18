@@ -34,4 +34,5 @@ platforms:
 suites:
   - name: default
     run_list:
-      - recipe[BBS-provision-cookbook::default]
+      - role[bbs_devel]
+    #   - recipe[BBS-provision-cookbook::default]

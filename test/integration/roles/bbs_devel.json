@@ -1,0 +1,9 @@
+{
+  "name": "bbs_release",
+  "default_attributes": {
+    "reldev": "devel"
+  },
+  "run_list": [
+    "recipe[BBS-provision-cookbook::default]"
+  ]
+}

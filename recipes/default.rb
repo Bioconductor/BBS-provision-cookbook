@@ -10,10 +10,12 @@ end
 
 package "language-pack-en"
 
-if node['is_bioc_devel']
+if node["reldev"] == "devel"
   reldev = :dev
-else
+elsif node["reldev"] == "release"
   reldev = :rel
+else
+  raise "are the bbs_devel and bbs_release roles defined?"
 end
 
 bioc_version = node['bioc_version'][reldev]
