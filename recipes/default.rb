@@ -1,7 +1,12 @@
 include_recipe 'apt'
 resources(execute: 'apt-get update').run_action(:run)
 
-raise "ec2 fix sudo bs"
+
+execute "fix ec2 hostname bs" do
+  command %Q(echo "127.0.0.1 $(hostname)" >> /etc/hosts)
+  not_if "grep -q $(hostname) /etc/hosts"
+end
+
 
 package "language-pack-en"
 
@@ -16,7 +21,7 @@ r_version = node['r_version'][reldev]
 execute "change time zone" do
     user "root"
     command "rm -f /etc/localtime && ln -sf /usr/share/zoneinfo/#{node['time_zone']} /etc/localtime"
-    only_if "file /etc/localtime | grep -q #{node['time_zone']}"
+    not_if "file /etc/localtime | grep -q #{node['time_zone']}"
 end
 
 control_group 'time zone' do
@@ -418,7 +423,6 @@ execute "build jags" do
   cwd "/tmp"
 end
 
-raise "jags pkgconfig"
 
 __END__
 
