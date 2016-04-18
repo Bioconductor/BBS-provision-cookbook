@@ -29,8 +29,7 @@ platforms:
 # - name: ubuntu-14.04
  - name: ubuntu-16.04
    driver:
-      # FIXME make AMI disk bigger and save as new AMI, add AMI ID here:
-      image_id: ami-70dad51a
+      image_id: ami-c8c6d9a2
 
 suites:
   - name: default
