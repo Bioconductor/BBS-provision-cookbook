@@ -193,7 +193,7 @@ end
     libgtk2.0-dev gcj-4.8 openjdk-8-jdk texlive-latex-extra
     texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
     htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
-    libxpm-dev liblapack-dev libv8-3.14-dev
+    libxpm-dev liblapack-dev libv8-3.14-dev libperl-dev
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
@@ -423,7 +423,37 @@ end
 execute "build jags" do
   command "tar zxf #{node['jags_url'][reldev].split('/').last} && cd #{node['jags_dir'][reldev]} && ./configure && make && make install"
   cwd "/tmp"
+  not_if {File.exists? "/tmp/#{node['jags_dir'][reldev]}/config.log"}
 end
+
+# libsbml
+
+remote_file "/tmp/#{node['libsbml_url'].split('/').last}" do
+  source node['libsbml_url']
+end
+
+execute "build libsbml" do
+  command "tar zxf #{node['libsbml_url'].split('/').last} && cd #{node['libsbml_dir']} && ./configure --enable-layout && make && make install"
+  cwd "/tmp"
+  not_if {File.exists? "/tmp/#{node['libsbml_dir']}/config.log"}
+end
+
+# Vienna RNA
+
+remote_file "/tmp/#{node['vienna_rna_dir']}.tar.gz" do
+  source node["vienna_rna_url"]
+end
+
+# commenting this out now as it fails to build.
+# however, it seems like this is not needed at the moment because
+# the RNAfold program is not actually called in an evaluted
+# vignette chunk/example/test in GeneGA
+
+# execute "build ViennaRNA" do
+#   command "tar zxf #{node['vienna_rna_dir']}.tar.gz && cd #{node['vienna_rna_dir']}/ && ./configure && make && make install"
+#   cwd "/tmp"
+#   not_if {File.exists? "/tmp/#{node['vienna_rna_dir']}/config.log"}
+# end
 
 
 __END__
