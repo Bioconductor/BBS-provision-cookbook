@@ -511,6 +511,7 @@ execute "update-texmf" do
 end
 
 
+# FIXME - set up pkgbuild stuff if this is a devel builder
 
 __END__
 
