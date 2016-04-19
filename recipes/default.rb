@@ -492,6 +492,24 @@ end
 #  etc
 # the above go in cron envs as well
 
+
+# latex settings
+
+file "/etc/texmf/texmf.d/01bioc.cnf" do
+    content "shell_escape=t"
+    owner "root"
+    group "root"
+    mode "0644"
+end
+
+execute "update-texmf" do
+    action :run
+    user "root"
+    command "update-texmf"
+end
+
+
+
 __END__
 
 require 'yaml'
