@@ -155,6 +155,11 @@ svn_meat_url = "#{base_url}/#{branch}/madman/Rpacks"
 
 dataexp_meat_url = "#{base_data_url}/#{branch}/experiment/pkgs"
 
+
+## FIXME! These svn co commands do NOT 'seed' the svn auth system so that
+## further actions (e.g. svn up) don't require authentication. Need to figure that out...
+## or change build system code to specify username/password (readonly/readonly is ok....)
+
 execute 'shallow MEAT0 checkout' do
   command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_meat_url} MEAT0"
   cwd bbsdir
@@ -194,6 +199,8 @@ end
     texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
     htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
     libxpm-dev liblapack-dev libv8-3.14-dev libperl-dev
+    libarchive-extract-perl libfile-copy-recursive-perl libcgi-pm-perl tabix
+    libdbi-perl libdbd-mysql-perl
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
@@ -455,6 +462,35 @@ end
 #   not_if {File.exists? "/tmp/#{node['vienna_rna_dir']}/config.log"}
 # end
 
+# ensemblVEP
+
+remote_file "/tmp/#{node['vep_dir'][reldev]}.zip" do
+  source node['vep_url'][reldev]
+end
+
+execute "install VEP" do
+  command "unzip #{node['vep_dir'][reldev]} && cd #{node['vep_dir'][reldev]}/scripts && mv variant_effect_predictor /usr/local/ && cd /usr/local/variant_effect_predictor && perl INSTALL.pl --NO_HTSLIB -a a"
+  cwd "/tmp"
+  not_if {File.exists? "/usr/local/variant_effect_predictor"}
+end
+
+# add /usr/local/variant_effect_predictor to path
+
+execute "add vep to path" do
+  command "echo 'export PATH=$PATH:/usr/local/variant_effect_predictor' >> /etc/profile"
+  not_if "grep -q variant_effect_predictor /etc/profile"
+end
+
+# TODO s:
+# cron - pointer in crontab to crond
+# ssh keys
+# latex - enablewrite18 and changes below
+# rgtk2? gtkmm?
+# in encrypted data bags:
+#  isr_login
+#  google login
+#  etc
+# the above go in cron envs as well
 
 __END__
 
