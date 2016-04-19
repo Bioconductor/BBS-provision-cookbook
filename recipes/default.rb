@@ -159,6 +159,8 @@ dataexp_meat_url = "#{base_data_url}/#{branch}/experiment/pkgs"
 ## FIXME! These svn co commands do NOT 'seed' the svn auth system so that
 ## further actions (e.g. svn up) don't require authentication. Need to figure that out...
 ## or change build system code to specify username/password (readonly/readonly is ok....)
+## try suggestions in
+# https://stackoverflow.com/questions/5062232/svn-wont-cache-credentials
 
 execute 'shallow MEAT0 checkout' do
   command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_meat_url} MEAT0"
