@@ -1,5 +1,10 @@
 # ec2 host/instance name is stored in .kitchen/default-ubuntu-1604.yml
 # last_action should probably be set to create in that file.
+# here is what the whole file looks like:
+# ---
+# server_id: i-xxxxxxx
+# hostname: 12.34.56.78
+# last_action: create
 ---
 driver:
   # name: vagrant
