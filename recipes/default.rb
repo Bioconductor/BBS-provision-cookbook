@@ -188,7 +188,7 @@ end
 
 
 
-%w(libnetcdf-dev libhdf5-serial-dev sqlite libfftw3-dev libfftw3-doc
+%w(ack-grep libnetcdf-dev libhdf5-serial-dev sqlite libfftw3-dev libfftw3-doc
     libopenbabel-dev fftw3 fftw3-dev pkg-config xfonts-100dpi xfonts-75dpi
     libopenmpi-dev openmpi-bin mpi-default-bin openmpi-common
     libexempi3 openmpi-doc texlive-science python-mpi4py
@@ -202,7 +202,7 @@ end
     htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
     libxpm-dev liblapack-dev libv8-3.14-dev libperl-dev
     libarchive-extract-perl libfile-copy-recursive-perl libcgi-pm-perl tabix
-    libdbi-perl libdbd-mysql-perl
+    libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
