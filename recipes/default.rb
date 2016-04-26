@@ -1,3 +1,5 @@
+# __END__
+# comment out the above but don't remove it
 include_recipe 'apt'
 resources(execute: 'apt-get update').run_action(:run)
 
@@ -510,9 +512,73 @@ execute "update-texmf" do
     command "update-texmf"
 end
 
+# get stuff from encrypted data bags
+
+directory "/home/biocbuild/.BBS" do
+  owner "biocbuild"
+  action :create
+end
+
+file "/home/biocbuild/.BBS/id_rsa" do
+  owner "biocbuild"
+  mode "0400"
+  content Chef::EncryptedDataBagItem.load('BBS',
+    'incoming_private_key')['value']
+end
+
+execute "add public key to authorized_keys" do
+  user "biocbuild"
+  command "echo #{Chef::EncryptedDataBagItem.load('BBS',
+    'incoming_public_key')['value']} >> /home/biocbuild/.ssh/authorized_keys"
+  not_if %Q(grep -q "#{Chef::EncryptedDataBagItem.load('BBS',
+    'incoming_public_key')['value']}" /home/biocbuild/.ssh/authorized_keys)
+end
+
+execute "add google api key to /etc/profile" do
+  user "root"
+  command %Q(echo "export GOOGLE_API_KEY=#{Chef::EncryptedDataBagItem.load('BBS',
+    'incoming_public_key')['value']}" >> /etc/profile)
+  not_if %Q(grep -q GOOGLE_API_KEY /etc/profile)
+end
+
+execute "add ISR_login to /etc/profile" do
+  user "root"
+  command %Q(echo "export ISR_login=#{Chef::EncryptedDataBagItem.load('BBS',
+    'isr_credentials')['username']}" >> /etc/profile)
+  not_if %Q(grep -q ISR_login /etc/profile)
+end
+
+execute "add ISR_pwd to /etc/profile" do
+  user "root"
+  command %Q(echo "export ISR_pwd=#{Chef::EncryptedDataBagItem.load('BBS',
+    'isr_credentials')['password']}" >> /etc/profile)
+  not_if %Q(grep -q ISR_pwd /etc/profile)
+end
+
+file "/home/biocbuild/.ssh/id_rsa" do
+  owner "biocbuild"
+  mode "0400"
+  content Chef::EncryptedDataBagItem.load('BBS',
+    'outgoing_private_key')['value']
+end
+
+# set up cron.d entries for biocbuild
+
+# first, indicate in crontab to look elsewhere:
+command "tell viewers of crontab to look in /etc/cron.d" do
+  command %Q(echo "# scheduled tasks are defined in /etc/cron.d, not here" | crontab -)
+  user "biocbuild"
+  not_if %Q(crontab -l |grep -q "# scheduled tasks are defined in /etc/cron.d")
+end
+
+# cron_d "pre-build-script" do
+#
+# end
+
+
 
 # FIXME - set up pkgbuild stuff if this is a devel builder
-
+# github_chef_key (from data bag)
 __END__
 
 require 'yaml'

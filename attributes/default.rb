@@ -6,7 +6,7 @@ default['hostname'] = {dev: "linux2.bioconductor.org",
   rel: "linux1.bioconductor.org"}
 default['time_zone'] = "America/New_York"
 default['bbs_repos'] = 'https://github.com/Bioconductor/BBS'
-default['bbs_branch'] = 'master' # FIXME change me, probably
+default['bbs_branch'] = 'feature/linux_builders_at_ub'
 default['r_url'] = {rel: 'https://cran.rstudio.com/src/base-prerelease/R-latest.tar.gz',
   dev: 'https://cran.rstudio.com/src/base-prerelease/R-latest.tar.gz'}
 default['r_src_dir'] = 'R-beta'
@@ -22,3 +22,16 @@ default['vienna_rna_dir'] = "ViennaRNA-1.8.5"
 default['vep_url'] = {dev: "https://codeload.github.com/Ensembl/ensembl-tools/zip/release/84",
   rel: "https://codeload.github.com/Ensembl/ensembl-tools/zip/release/84"}
 default['vep_dir'] = {dev: "ensembl-tools-release-84", rel: "ensembl-tools-release-84"}
+
+# cron info
+
+def starhash(minute: '*', hour: '*', day: '*', month: '*', weekday: '*')
+  {minute: minute, hour: hour, day: day, month: month, weekday: weekday}
+end
+
+default['bioc_pre_run_time'] = {
+  rel:
+    starhash(minute: '20', hour: '19', weekday: '0,1,2,3,4,6'),
+  dev:
+    starhash(minute: '20', hour: '20', weekday: '0,1,2,3,4,6'),
+}
