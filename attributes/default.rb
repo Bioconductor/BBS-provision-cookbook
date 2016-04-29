@@ -9,7 +9,7 @@ default['bbs_repos'] = 'https://github.com/Bioconductor/BBS'
 default['bbs_branch'] = 'feature/linux_builders_at_ub'
 default['r_url'] = {rel: 'https://cran.rstudio.com/src/base-prerelease/R-latest.tar.gz',
   dev: 'https://cran.rstudio.com/src/base-prerelease/R-latest.tar.gz'}
-default['r_src_dir'] = 'R-beta'
+default['r_src_dir'] = {rel: 'R-rc', dev: 'R-rc'}
 default['root_url'] = {dev: "https://root.cern.ch/download/root_v5.34.36.source.tar.gz",
   rel: "https://root.cern.ch/download/root_v5.34.36.source.tar.gz"}
 default['jags_url'] = {dev: "http://iweb.dl.sourceforge.net/project/mcmc-jags/JAGS/4.x/Source/JAGS-4.2.0.tar.gz",

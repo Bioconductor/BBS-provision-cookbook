@@ -238,12 +238,12 @@ execute "untar R" do
   command "tar zxf #{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}"
   user 'biocbuild'
   cwd "#{bbsdir}/rbuild"
-  not_if {File.exists? "#{bbsdir}/rbuild/#{node['r_src_dir']}"}
+  not_if {File.exists? "#{bbsdir}/rbuild/#{node['r_src_dir'][reldev]}"}
 end
 
 
 execute "build R" do
-  command "#{bbsdir}/rbuild/#{node['r_src_dir']}/configure --enable-R-shlib && make -j"
+  command "#{bbsdir}/rbuild/#{node['r_src_dir'][reldev]}/configure --enable-R-shlib && make -j"
   user 'biocbuild'
   cwd "#{bbsdir}/R"
   not_if {File.exists? "#{bbsdir}/R/Makefile"}
@@ -362,7 +362,7 @@ remote_file "/home/biocadmin/rbuild/#{node['r_url'][reldev].split("/").last}" do
 end
 
 execute "untar R" do
-  command "tar zxf /home/biocadmin/rbuild/#{node['r_url'][reldev].split("/").last} && mv #{node['r_src_dir']} /home/biocadmin/R-#{r_version}"
+  command "tar zxf /home/biocadmin/rbuild/#{node['r_url'][reldev].split("/").last} && mv #{node['r_src_dir'][reldev]} /home/biocadmin/R-#{r_version}"
   user 'biocadmin'
   cwd "/home/biocadmin/rbuild"
   not_if {File.exists? "/home/biocadmin/R-#{r_version}"}
