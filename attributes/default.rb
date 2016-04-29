@@ -55,14 +55,14 @@ default['bioc_post_run_time'] = {
 
 default['killproc_time'] = starhash(minute: 10)
 
-default['bioc_send_notifications_time'] = # for release only
-  starhash(minute: 10, hour: 14, weekday: 2)
+default['bioc_send_notifications_time'] = starhash(minute: 10, hour: 14, weekday: 2)
 
 default['test_coverage_time'] = {
-  starhash(minute: 30, hour: 13, weekday: "0,1,2,4,5")
+  rel: starhash(minute: 30, hour: 13, weekday: "0,1,2,4,5"),
+  dev: starhash(minute: 30, hour: 13, weekday: "0,1,2,4,5"),
 }
 
 default['build_report_archive_time'] = {
-  rel: starhash(minute: )
+  rel: starhash(minute: 3, hour: 19, weekday: "0,1,2,3,4,6"),
   dev: starhash(minute: 3, hour: 20, weekday: "0,1,2,3,4,6")
 }

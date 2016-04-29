@@ -18,3 +18,4 @@ Berksfile.lock
 Gemfile.lock
 bin/*
 .bundle/*
+knife.rb

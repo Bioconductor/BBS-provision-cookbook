@@ -28,7 +28,7 @@ provisioner:
   data_path: test/shared
   data_bags_path: ./test/data_bags
   encrypted_data_bag_secret_key_path: ./secret_for_testing_only
-  
+
 
 # Uncomment the following verifier to leverage Inspec instead of Busser (the
 # default verifier)
@@ -44,5 +44,5 @@ platforms:
 suites:
   - name: default
     run_list:
-      - role[bbs_devel]
+      - role[bbs_devel_linux]
     #   - recipe[BBS-provision-cookbook::default]
