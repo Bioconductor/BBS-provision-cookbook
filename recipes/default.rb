@@ -1,5 +1,6 @@
 # __END__
 # comment out the above but don't remove it
+include_recipe 'cron'
 include_recipe 'apt'
 resources(execute: 'apt-get update').run_action(:run)
 
@@ -561,6 +562,12 @@ file "/home/biocbuild/.ssh/id_rsa" do
   content Chef::EncryptedDataBagItem.load('BBS',
     'outgoing_private_key')['value']
 end
+
+# FIXME more stuff that needs to be in data bags:
+# * github oauth token for codecov
+# * codecov token
+# * aws credentials for archiving build reports to s3
+
 
 # set up cron.d entries for biocbuild
 

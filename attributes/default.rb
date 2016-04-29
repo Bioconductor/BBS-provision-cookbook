@@ -26,12 +26,43 @@ default['vep_dir'] = {dev: "ensembl-tools-release-84", rel: "ensembl-tools-relea
 # cron info
 
 def starhash(minute: '*', hour: '*', day: '*', month: '*', weekday: '*')
-  {minute: minute, hour: hour, day: day, month: month, weekday: weekday}
+  {minute: minute.to_s, hour: hour.to_s, day: day.to_s,
+    month: month.to_s, weekday: weekday.to_s}
 end
+
+# biocbuild
 
 default['bioc_pre_run_time'] = {
   rel:
-    starhash(minute: '20', hour: '19', weekday: '0,1,2,3,4,6'),
+    starhash(minute: 20, hour: 19, weekday: '0,1,2,3,4,6'),
   dev:
-    starhash(minute: '20', hour: '20', weekday: '0,1,2,3,4,6'),
+    starhash(minute: 20, hour: 20, weekday: '0,1,2,3,4,6')
+}
+
+default['bioc_run_time'] = {
+  rel:
+    starhash(minute: 20, hour: 20, weekday: '0,1,2,3,4,6'),
+  dev:
+    starhash(minute: 0, hour: 21, weekday: '0,1,2,3,4,6')
+}
+
+default['bioc_post_run_time'] = {
+  rel:
+    starhash(minute: 45, hour: 13, weekday: '0,1,2,3,4,6'),
+  dev:
+    starhash(minute: 15, hour: 14, weekday: '0,1,2,3,4,6')
+}
+
+default['killproc_time'] = starhash(minute: 10)
+
+default['bioc_send_notifications_time'] = # for release only
+  starhash(minute: 10, hour: 14, weekday: 2)
+
+default['test_coverage_time'] = {
+  starhash(minute: 30, hour: 13, weekday: "0,1,2,4,5")
+}
+
+default['build_report_archive_time'] = {
+  rel: starhash(minute: )
+  dev: starhash(minute: 3, hour: 20, weekday: "0,1,2,3,4,6")
 }
