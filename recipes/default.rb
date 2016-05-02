@@ -105,7 +105,9 @@ end
     end
 end
 
-%W(src public_html public_html/BBS public_html/BBS/#{node['bioc_version'][reldev]} public_html/BBS/#{node['bioc_version'][reldev]}/bioc).each do |dir|
+%W(src public_html public_html/BBS public_html/BBS/#{node['bioc_version'][reldev]}
+public_html/BBS/#{node['bioc_version'][reldev]}/bioc
+public_html/BBS/#{node['bioc_version'][reldev]}/data-experiment).each do |dir|
     directory "/home/biocbuild/#{dir}" do
         owner "biocbuild"
         group "biocbuild"
@@ -113,6 +115,19 @@ end
         action :create
     end
 end
+
+%W(bioc data-experiment).each do |repo|
+  %W(nodes OUTGOING report src svninfo).each do |dir|
+    directory "/home/biocbuild/public_html/BBS/#{node['bioc_version'][reldev]}/#{repo}/#{dir}" do
+      owner "biocbuild"
+      group "biocbuild"
+      mode "0755"
+      action :create
+    end
+  end
+end
+
+
 
 # data experiment
 dataexpdir = bbsdir.sub(/bioc$/, "data-experiment")
@@ -572,7 +587,7 @@ end
 # set up cron.d entries for biocbuild
 
 # first, indicate in crontab to look elsewhere:
-command "tell viewers of crontab to look in /etc/cron.d" do
+execute "tell viewers of crontab to look in /etc/cron.d" do
   command %Q(echo "# scheduled tasks are defined in /etc/cron.d, not here" | crontab -)
   user "biocbuild"
   not_if %Q(crontab -l |grep -q "# scheduled tasks are defined in /etc/cron.d")
