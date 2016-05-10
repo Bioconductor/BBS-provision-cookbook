@@ -312,6 +312,11 @@ link "/var/www/html/BBS" do
     to "/home/biocbuild/public_html/BBS"
 end
 
+
+link "/usr/bin/aclocal-1.14" do
+  to "/usr/bin/aclocal-1.15"
+end
+
 # biocadmin
 
 user "biocadmin" do
