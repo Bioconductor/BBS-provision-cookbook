@@ -1,9 +1,8 @@
 default['bioc_version'] = {rel: '3.3', dev: '3.4'}
 default['use_r_devel'] = {rel: false, dev: false}
 default['r_version'] = {rel: '3.3', dev: '3.3'}
-default['is_bioc_devel'] = true # change this depending on what we are provisioning
-default['hostname'] = {dev: "linux2.bioconductor.org",
-  rel: "linux1.bioconductor.org"}
+default['hostname'] = {rel: "linux2.bioconductor.org",
+  dev: "linux1.bioconductor.org"}
 default['time_zone'] = "America/New_York"
 default['bbs_repos'] = 'https://github.com/Bioconductor/BBS'
 default['bbs_branch'] = 'feature/linux_builders_at_ub'

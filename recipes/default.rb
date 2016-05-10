@@ -5,12 +5,6 @@ include_recipe 'apt'
 resources(execute: 'apt-get update').run_action(:run)
 
 
-execute "fix ec2 hostname bs" do
-  command %Q(echo "127.0.0.1 $(hostname)" >> /etc/hosts)
-  not_if "grep -q $(hostname) /etc/hosts"
-end
-
-
 package "language-pack-en"
 
 if node["reldev"] == "devel"
@@ -38,16 +32,24 @@ control_group 'time zone' do
 end
 
 
-# TODO set hostname
-execute "set hostname" do
-  command "hostname #{node['hostname'][reldev]}"
-  not_if "hostname | grep -q #{node['hostname'][reldev]}"
-end
 
 file "/etc/hostname" do
   content node['hostname'][reldev]
   mode "0644"
 end
+
+execute "set hostname" do
+  command "hostname $(cat /etc/hostname)"
+  not_if "hostname | grep -q $(cat /etc/hostname)"
+end
+
+
+
+execute "fix ec2 hostname bs" do
+  command %Q(echo "127.0.0.1 $(hostname)" >> /etc/hosts)
+  not_if "grep -q $(hostname) /etc/hosts"
+end
+
 
 user "biocbuild" do
     supports :manage_home => true
@@ -172,7 +174,7 @@ end
 
 base_url = "https://hedgehog.fhcrc.org/bioconductor"
 base_data_url = "https://hedgehog.fhcrc.org/bioc-data"
-if node['is_bioc_devel']
+if reldev == :dev
     branch = 'trunk'
 else
     branch = "branches/RELEASE_#{node['bioc_version'][reldev].sub(".", "_")}"
