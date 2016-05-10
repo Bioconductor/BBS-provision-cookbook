@@ -15,6 +15,7 @@ else
   raise "are the bbs_devel and bbs_release roles defined?"
 end
 
+
 bioc_version = node['bioc_version'][reldev]
 r_version = node['r_version'][reldev]
 execute "change time zone" do
@@ -34,7 +35,7 @@ end
 
 
 file "/etc/hostname" do
-  content node['hostname'][reldev]
+  content node['desired_hostname'][reldev]
   mode "0644"
 end
 
