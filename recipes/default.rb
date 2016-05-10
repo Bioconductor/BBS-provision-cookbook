@@ -39,6 +39,15 @@ end
 
 
 # TODO set hostname
+execute "set hostname" do
+  command "hostname #{node['hostname'][reldev]}"
+  not_if "hostname | grep -q #{node['hostname'][reldev]}"
+end
+
+file "/etc/hostname" do
+  content node['hostname'][reldev]
+  mode "0644"
+end
 
 user "biocbuild" do
     supports :manage_home => true
