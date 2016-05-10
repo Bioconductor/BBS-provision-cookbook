@@ -297,7 +297,13 @@ execute "install BiocInstaller" do
   not_if {File.exists? "#{bbsdir}/R/library/BiocInstaller"}
 end
 
-# FIXME run useDevel() if appropriate
+if reldev == :dev
+  execute "run useDevel()" do
+    command %Q(#{bbsdir}/R/bin/R -e "BiocInstaller::useDevel()")
+    user "biocbuild"
+    not_if %Q(#{bbsdir}/R/bin/R --slave -q -e "BiocInstaller:::IS_USER" | grep -q FALSE)
+  end
+end
 
 link "/var/www/html/BBS" do
     to "/home/biocbuild/public_html/BBS"
