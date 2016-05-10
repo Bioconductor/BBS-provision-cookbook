@@ -236,7 +236,7 @@ end
     libarchive-extract-perl libfile-copy-recursive-perl libcgi-pm-perl tabix
     libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev byacc
     automake libmysqlclient-dev postgresql-server-dev-all pandoc-citeproc
-    firefox graphviz ipython python-pip
+    firefox graphviz python-pip
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
@@ -254,6 +254,18 @@ execute "install jupyter" do
   command "pip install jupyter"
   not_if "which jupyter | grep -q jupyter"
 end
+
+execute "install ipython" do
+  command "pip install ipython==4.1.2"
+  not_if "pip freeze | grep -q ipython"
+end
+
+execute "install nbconvert" do
+  command "pip install nbconvert==4.1.0"
+  not_if "pip freeze | grep -q nbconvert"
+end
+
+
 
 git "/home/biocbuild/BBS" do
   repository node['bbs_repos']
