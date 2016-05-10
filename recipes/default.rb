@@ -196,12 +196,14 @@ execute 'shallow MEAT0 checkout' do
   command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_meat_url} MEAT0"
   cwd bbsdir
   user 'biocbuild'
+  not_if {File.exists? ("#{bbsdir}/MEAT0/.svn")}
 end
 
 execute 'shallow MEAT0 checkout (data-experiment)' do
   command "svn co --depth empty --non-interactive --username readonly --password readonly #{dataexp_meat_url} MEAT0"
   cwd dataexpdir
   user 'biocbuild'
+  not_if {File.exists? ("#{dataexpdir}/MEAT0/.svn")}
 end
 
 
