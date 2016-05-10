@@ -553,7 +553,7 @@ end
 execute "add google api key to /etc/profile" do
   user "root"
   command %Q(echo "export GOOGLE_API_KEY=#{Chef::EncryptedDataBagItem.load('BBS',
-    'incoming_public_key')['value']}" >> /etc/profile)
+    'google_api_key')['value']}" >> /etc/profile)
   not_if %Q(grep -q GOOGLE_API_KEY /etc/profile)
 end
 
