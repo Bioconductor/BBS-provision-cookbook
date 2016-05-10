@@ -234,7 +234,7 @@ end
     htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
     libxpm-dev liblapack-dev libv8-3.14-dev libperl-dev
     libarchive-extract-perl libfile-copy-recursive-perl libcgi-pm-perl tabix
-    libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev
+    libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
