@@ -236,6 +236,7 @@ end
     libarchive-extract-perl libfile-copy-recursive-perl libcgi-pm-perl tabix
     libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev byacc
     automake libmysqlclient-dev postgresql-server-dev-all pandoc-citeproc
+    firefox graphviz
 ).each do |pkg|
     package pkg do
         # this might timeout, but adding a 'timeout' here
