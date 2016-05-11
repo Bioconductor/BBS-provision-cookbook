@@ -239,16 +239,25 @@ end
     firefox graphviz python-pip
 ).each do |pkg|
     package pkg do
-        # this might timeout, but adding a 'timeout' here
-        # causes an error. hmmm.
-        # texlive-science seems to be the culprit
-        # also texlive-fonts-extra
-        # timeout 10000
         action :install
     end
 end
 
+
+# Some packages are not installed by the above, even though the output
+# suggests they are. See
+# https://discourse.chef.io/t/package-not-installed-by-package-resource-on-ubuntu/8456
+# So explicitly install using apt-get:
+
+execute "install libnetcdf-dev" do
+  command "apt-get install -y libnetcdf-dev"
+  not_if "dpkg --get-selections libnetcdf-dev|grep -q libnetcdf-dev"
+end
+
 package 'git'
+
+
+
 
 execute "install jupyter" do
   command "pip install jupyter"
@@ -265,7 +274,31 @@ execute "install nbconvert" do
   not_if "pip freeze | grep -q nbconvert"
 end
 
+argtable_tarball = node['argtable_url'].split('/').last
+argtable_dir = argtable_tarball.sub(".tar.gz", "")
 
+remote_file "/tmp/#{argtable_tarball}" do
+  source node['argtable_url']
+end
+
+execute "build argtable" do
+  command "tar zxf #{node['argtable_tarball'].split('/').last} && cd #{argtable_dir} && ./configure && make && make install"
+  cwd "/tmp"
+  not_if {File.exists? "/tmp/#{argtable_dir}/config.log"}
+end
+
+clustalo_tarball = node['clustalo_url'].split('/').last
+clustalo_dir = clustalo_tarball.sub(".tar.gz", "")
+
+remote_file "/tmp/#{clustalo_tarball}" do
+  source node['clustalo_url']
+end
+
+execute "build clustalo" do
+  command "tar zxf #{clustalo_tarball} && cd #{clustalo_dir} && ./configure && make && make install"
+  not_if "which clustalo | grep -q clustalo"
+  cwd "/tmp"
+end
 
 git "/home/biocbuild/BBS" do
   repository node['bbs_repos']
