@@ -249,10 +249,11 @@ end
 # https://discourse.chef.io/t/package-not-installed-by-package-resource-on-ubuntu/8456
 # So explicitly install using apt-get:
 
-execute "install libnetcdf-dev" do
-  command "apt-get install -y libnetcdf-dev"
-  not_if "dpkg --get-selections libnetcdf-dev|grep -q libnetcdf-dev"
-end
+# comment this out for now for testing
+# execute "install libnetcdf-dev" do
+#   command "apt-get install -y libnetcdf-dev"
+#   not_if "dpkg --get-selections libnetcdf-dev|grep -q libnetcdf-dev"
+# end
 
 package 'git'
 
