@@ -282,7 +282,7 @@ remote_file "/tmp/#{argtable_tarball}" do
 end
 
 execute "build argtable" do
-  command "tar zxf #{node['argtable_tarball'].split('/').last} && cd #{argtable_dir} && ./configure && make && make install"
+  command "tar zxf #{argtable_tarball.split('/').last} && cd #{argtable_dir} && ./configure && make && make install"
   cwd "/tmp"
   not_if {File.exists? "/tmp/#{argtable_dir}/config.log"}
 end
