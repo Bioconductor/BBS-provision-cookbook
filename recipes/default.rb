@@ -243,6 +243,7 @@ end
     end
 end
 
+package 'libnetcdf-dev'
 
 # Some packages are not installed by the above, even though the output
 # suggests they are. See
