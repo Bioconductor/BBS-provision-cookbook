@@ -550,16 +550,11 @@ remote_file "/tmp/#{node['vienna_rna_dir']}.tar.gz" do
   source node["vienna_rna_url"]
 end
 
-# commenting this out now as it fails to build.
-# however, it seems like this is not needed at the moment because
-# the RNAfold program is not actually called in an evaluted
-# vignette chunk/example/test in GeneGA
-
-# execute "build ViennaRNA" do
-#   command "tar zxf #{node['vienna_rna_dir']}.tar.gz && cd #{node['vienna_rna_dir']}/ && ./configure && make && make install"
-#   cwd "/tmp"
-#   not_if {File.exists? "/tmp/#{node['vienna_rna_dir']}/config.log"}
-# end
+execute "build ViennaRNA" do
+  command "tar zxf #{node['vienna_rna_dir']}.tar.gz && cd #{node['vienna_rna_dir']}/ && ./configure && make && make install"
+  cwd "/tmp"
+  not_if {File.exists? "/tmp/#{node['vienna_rna_dir']}/config.log"}
+end
 
 # ensemblVEP
 

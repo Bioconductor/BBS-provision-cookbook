@@ -16,8 +16,8 @@ default['jags_url'] = {dev: "http://iweb.dl.sourceforge.net/project/mcmc-jags/JA
 default['jags_dir'] = {dev: "JAGS-4.2.0", rel: "JAGS-4.2.0"}
 default['libsbml_url']  = "https://s3.amazonaws.com/linux-provisioning/libSBML-5.10.2-core-src.tar.gz"
 default['libsbml_dir'] = "libsbml-5.10.2"
-default['vienna_rna_url'] = "https://www.tbi.univie.ac.at/RNA/download/package=viennarna-src-tbi&flavor=sourcecode&dist=1_8_x&arch=src&version=1.8.5"
-default['vienna_rna_dir'] = "ViennaRNA-1.8.5"
+default['vienna_rna_url'] = "https://www.tbi.univie.ac.at/RNA/download/package=viennarna-src-tbi&flavor=sourcecode&dist=2_2_x&arch=src&version=2.2.5"
+default['vienna_rna_dir'] = "ViennaRNA-2.2.5"
 default['vep_url'] = {dev: "https://codeload.github.com/Ensembl/ensembl-tools/zip/release/84",
   rel: "https://codeload.github.com/Ensembl/ensembl-tools/zip/release/84"}
 default['vep_dir'] = {dev: "ensembl-tools-release-84", rel: "ensembl-tools-release-84"}
