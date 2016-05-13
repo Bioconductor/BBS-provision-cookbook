@@ -236,7 +236,7 @@ end
     libarchive-extract-perl libfile-copy-recursive-perl libcgi-pm-perl tabix
     libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev byacc
     automake libmysqlclient-dev postgresql-server-dev-all pandoc-citeproc
-    firefox graphviz python-pip libxml-simple-perl
+    firefox graphviz python-pip libxml-simple-perl texlive-lang-european
 ).each do |pkg|
     package pkg do
         action :install
@@ -369,6 +369,11 @@ end
 link "/usr/bin/aclocal-1.14" do
   to "/usr/bin/aclocal-1.15"
 end
+
+link "/usr/bin/automake-1.14" do
+  to "/usr/bin/automake-1.15"
+end
+
 
 # biocadmin
 
