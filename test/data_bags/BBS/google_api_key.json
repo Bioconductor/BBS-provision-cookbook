@@ -1,0 +1,9 @@
+{
+  "id": "google_api_key",
+  "value": {
+    "encrypted_data": "8pYqEQMCz8wzMBjpj63652rbauQNEPEY+kljgcBNMktrBDBz9zir/rhzwxLz\n1WcU\n",
+    "iv": "3HvsInM8OkPQ4VV3z3MR1w==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  }
+}
