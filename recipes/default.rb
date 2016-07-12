@@ -366,14 +366,6 @@ link "/var/www/html/BBS" do
 end
 
 
-link "/usr/bin/aclocal-1.14" do
-  to "/usr/bin/aclocal-1.15"
-end
-
-link "/usr/bin/automake-1.14" do
-  to "/usr/bin/automake-1.15"
-end
-
 
 # biocadmin
 
