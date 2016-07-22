@@ -147,6 +147,7 @@ dataexpdir = bbsdir.sub(/bioc$/, "data-experiment")
 directory dataexpdir do
   action :create
   owner "biocbuild"
+  group "biocbuild"
 end
 
 
@@ -196,6 +197,7 @@ execute 'shallow MEAT0 checkout' do
   command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_meat_url} MEAT0"
   cwd bbsdir
   user 'biocbuild'
+  group "biocbuild"
   not_if {File.exists? ("#{bbsdir}/MEAT0/.svn")}
 end
 
@@ -203,6 +205,7 @@ execute 'shallow MEAT0 checkout (data-experiment)' do
   command "svn co --depth empty --non-interactive --username readonly --password readonly #{dataexp_meat_url} MEAT0"
   cwd dataexpdir
   user 'biocbuild'
+  group "biocbuild"
   not_if {File.exists? ("#{dataexpdir}/MEAT0/.svn")}
 end
 
@@ -306,29 +309,34 @@ git "/home/biocbuild/BBS" do
   repository node['bbs_repos']
   revision node['bbs_branch']
   user 'biocbuild'
+  group 'biocbuild'
 end
 
 directory "#{bbsdir}/rbuild" do
   action :create
   owner 'biocbuild'
+  group 'biocbuild'
 end
 
 remote_file "#{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}" do
   source node['r_url'][reldev]
   owner 'biocbuild'
+  group 'biocbuild'
 end
 
 execute "untar R" do
   command "tar zxf #{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}"
-  user 'biocbuild'
+  user "biocbuild"
+  group "biocbuild"
   cwd "#{bbsdir}/rbuild"
   not_if {File.exists? "#{bbsdir}/rbuild/#{node['r_src_dir'][reldev]}"}
 end
 
 
 execute "build R" do
-  command "#{bbsdir}/rbuild/#{node['r_src_dir'][reldev]}/configure --enable-R-shlib && make -j"
-  user 'biocbuild'
+  command "#{bbsdir}/rbuild/#{node['r_src_dir'][reldev]}/configure --enable-R-shlib && make"
+  user "biocbuild"
+  group "biocbuild"
   cwd "#{bbsdir}/R"
   not_if {File.exists? "#{bbsdir}/R/Makefile"}
 end
@@ -344,6 +352,7 @@ execute "set up arp alias" do
   command %Q(echo 'alias arp="export PATH=$PATH:$HOME/bbs-#{node['bioc_version'][reldev]}-bioc/R/bin"' >> /home/biocbuild/.bash_profile)
   cwd "/home/biocbuild"
   user "biocbuild"
+  group "biocbuild"
   not_if "grep -q arp /home/biocbuild/.bash_profile"
 end
 
@@ -463,7 +472,7 @@ end
 
 
 execute "build R" do
-  command "./configure --enable-R-shlib && make -j"
+  command "./configure --enable-R-shlib && make"
   user 'biocadmin'
   cwd "/home/biocadmin/R-#{r_version}/"
   not_if {File.exists? "/home/biocadmin/R-#{r_version}/config.log"}
