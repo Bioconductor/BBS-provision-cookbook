@@ -1,5 +1,21 @@
 # BBS-provision-cookbook
 
+## Updating the cookbook
+
+To list all cookbooks on Chef server run
+```
+knife cookbook list
+```
+Upload your cookbook with
+```
+knife cookbook upload BBS-provision-cookbook
+```
+Resolve dependencies on other cookbooks with Berkshelf.
+```
+berks install
+berks upload
+```
+
 ## Bootstraping a node
 
 1. Manually (?) upload the data bags secret to `/etc/chef/encrypted_data_bag_secret`
@@ -10,15 +26,15 @@
   knife bootstrap 172.29.0.3 --ssh-user USER --ssh-password 'PASS' --sudo --use-sudo-password --node-name malbec1 --run-list 'role[bbs_devel_linux],recipe[BBS-provision-cookbook]'
   ```
 
-## Update the node's configuration 
+## Updating the node's configuration 
 
-1. Upload the cookbook to the Chef server
+Work on the cookbook locally. Once ready, upload it to the Chef server
 
   ```
   knife cookbook upload BBS-provision-cookbook
   ```
 
-2. Run the cookbook on your node
+and run the cookbook on your node
 
   ```
   knife ssh ADDRESS 'sudo chef-client' --manual-list --ssh-user USER --ssh-password 'PASSWORD'
