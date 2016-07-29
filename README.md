@@ -39,3 +39,10 @@ and run the cookbook on your node
   ```
   knife ssh ADDRESS 'sudo chef-client' --manual-list --ssh-user USER --ssh-password 'PASSWORD'
   ```
+
+## Add a new recipe
+
+Generate the file with `chef generate recipe cron` and reference the new recipe in `recipes/default.rb`.
+```
+include_recipe 'BBS-provision-cookbook::cron'
+```
