@@ -240,6 +240,7 @@ end
     libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev byacc
     automake libmysqlclient-dev postgresql-server-dev-all pandoc-citeproc
     firefox graphviz python-pip libxml-simple-perl texlive-lang-european
+    libmpfr-dev
 ).each do |pkg|
     package pkg do
         action :install
