@@ -1,8 +1,7 @@
 default['bioc_version'] = {rel: '3.4', dev: '3.5'}
 default['use_r_devel'] = {rel: false, dev: true}
 default['r_version'] = {rel: '3.3', dev: '3.4'}
-default['desired_hostname'] = {rel: "malbec1.bioconductor.org",
-  dev: "malbec2.bioconductor.org"}
+default['desired_hostname'] = {rel: "malbec1", dev: "malbec2"}
 default['time_zone'] = "America/New_York"
 default['bbs_repos'] = 'https://github.com/Bioconductor/BBS'
 default['bbs_branch'] = 'feature/linux_builders_at_ub'
