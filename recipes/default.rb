@@ -1,6 +1,6 @@
 # __END__
 # comment out the above but don't remove it
-include_recipe 'cron'
+# include_recipe 'cron'
 include_recipe 'apt'
 resources(execute: 'apt-get update').run_action(:run)
 
@@ -240,7 +240,7 @@ end
     libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev byacc
     automake libmysqlclient-dev postgresql-server-dev-all pandoc-citeproc
     firefox graphviz python-pip libxml-simple-perl texlive-lang-european
-    libmpfr-dev
+    libmpfr-dev tree
 ).each do |pkg|
     package pkg do
         action :install

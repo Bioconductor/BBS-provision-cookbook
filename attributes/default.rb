@@ -1,14 +1,14 @@
-default['bioc_version'] = {rel: '3.3', dev: '3.4'}
-default['use_r_devel'] = {rel: false, dev: false}
-default['r_version'] = {rel: '3.3', dev: '3.3'}
-default['desired_hostname'] = {rel: "linux2.bioconductor.org",
-  dev: "linux1.bioconductor.org"}
+default['bioc_version'] = {rel: '3.4', dev: '3.5'}
+default['use_r_devel'] = {rel: false, dev: true}
+default['r_version'] = {rel: '3.3', dev: '3.4'}
+default['desired_hostname'] = {rel: "malbec1.bioconductor.org",
+  dev: "malbec2.bioconductor.org"}
 default['time_zone'] = "America/New_York"
 default['bbs_repos'] = 'https://github.com/Bioconductor/BBS'
 default['bbs_branch'] = 'feature/linux_builders_at_ub'
 default['r_url'] = {rel: 'https://cran.rstudio.com/src/base/R-3/R-3.3.1.tar.gz',
-  dev: 'https://cran.rstudio.com/src/base/R-3/R-3.3.1.tar.gz'}
-default['r_src_dir'] = {rel: 'R-3.3.1', dev: 'R-3.3.1'}
+  dev: 'https://stat.ethz.ch/R/daily/R-devel.tar.gz'}
+default['r_src_dir'] = {rel: 'R-3.3.1', dev: 'R-devel'}
 default['root_url'] = {dev: "https://root.cern.ch/download/root_v5.34.36.source.tar.gz",
   rel: "https://root.cern.ch/download/root_v5.34.36.source.tar.gz"}
 default['jags_url'] = {dev: "https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Source/JAGS-4.2.0.tar.gz/download",
