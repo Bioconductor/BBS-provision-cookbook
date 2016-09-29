@@ -313,29 +313,29 @@ git "/home/biocbuild/BBS" do
   group 'biocbuild'
 end
 
-directory "#{bbsdir}/rbuild" do
+directory "#{bbsdir}/rdownloads" do
   action :create
   owner 'biocbuild'
   group 'biocbuild'
 end
 
-remote_file "#{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}" do
+remote_file "#{bbsdir}/rdownloads/#{node['r_url'][reldev].split("/").last}" do
   source node['r_url'][reldev]
   owner 'biocbuild'
   group 'biocbuild'
 end
 
 execute "untar R" do
-  command "tar zxf #{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}"
+  command "tar zxf #{bbsdir}/rdownloads/#{node['r_url'][reldev].split("/").last}"
   user "biocbuild"
   group "biocbuild"
-  cwd "#{bbsdir}/rbuild"
-  not_if {File.exists? "#{bbsdir}/rbuild/#{node['r_src_dir'][reldev]}"}
+  cwd "#{bbsdir}/rdownloads"
+  not_if {File.exists? "#{bbsdir}/rdownloads/#{node['r_src_dir'][reldev]}"}
 end
 
 
 execute "build R" do
-  command "#{bbsdir}/rbuild/#{node['r_src_dir'][reldev]}/configure --enable-R-shlib && make"
+  command "#{bbsdir}/rdownloads/#{node['r_src_dir'][reldev]}/configure --enable-R-shlib && make"
   user "biocbuild"
   group "biocbuild"
   cwd "#{bbsdir}/R"
@@ -387,7 +387,7 @@ user "biocadmin" do
 end
 
 
-%W(bin InstalledPkgs tmp rbuild
+%W(bin InstalledPkgs tmp rdownloads
 PACKAGES/#{bioc_version}
 PACKAGES/#{bioc_version}/biocViews
 PACKAGES/#{bioc_version}/bioc
@@ -458,15 +458,15 @@ end
 
 
 
-remote_file "/home/biocadmin/rbuild/#{node['r_url'][reldev].split("/").last}" do
+remote_file "/home/biocadmin/rdownloads/#{node['r_url'][reldev].split("/").last}" do
   source node['r_url'][reldev]
   owner 'biocadmin'
 end
 
 execute "untar R" do
-  command "tar zxf /home/biocadmin/rbuild/#{node['r_url'][reldev].split("/").last} && mv #{node['r_src_dir'][reldev]} /home/biocadmin/R-#{r_version}"
+  command "tar zxf /home/biocadmin/rdownloads/#{node['r_url'][reldev].split("/").last} && mv #{node['r_src_dir'][reldev]} /home/biocadmin/R-#{r_version}"
   user 'biocadmin'
-  cwd "/home/biocadmin/rbuild"
+  cwd "/home/biocadmin/rdownloads"
   not_if {File.exists? "/home/biocadmin/R-#{r_version}"}
 end
 
