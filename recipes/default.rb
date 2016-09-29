@@ -180,22 +180,23 @@ dataexp_meat_url = "#{base_data_url}/#{branch}/experiment/pkgs"
 ## try suggestions in
 # https://stackoverflow.com/questions/5062232/svn-wont-cache-credentials
 
+## enable plaintext password caching
+svn_opts = "--config-option servers:global:store-passwords=yes --config-option servers:global:store-plaintext-passwords=yes"
+
 execute 'shallow MEAT0 checkout' do
-  command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_meat_url} MEAT0"
+  command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_opts} #{svn_meat_url} MEAT0"
   cwd bbsdir
   user "biocbuild"
   group "biocbuild"
-  svn_username "readonly"
-  svn_password "readonly"
-  not_if {File.exists? ("#{bbsdir}/MEAT0/.svn")}
+  creates "MEAT0" #guard
 end
 
 execute 'shallow MEAT0 checkout (data-experiment)' do
-  command "svn co --depth empty --non-interactive --username readonly --password readonly #{dataexp_meat_url} MEAT0"
+  command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_opts} #{dataexp_meat_url} MEAT0"
   cwd dataexpdir
   user 'biocbuild'
   group "biocbuild"
-  not_if {File.exists? ("#{dataexpdir}/MEAT0/.svn")}
+  creates "MEAT0" #guard
 end
 
 
