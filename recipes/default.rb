@@ -117,26 +117,13 @@ end
     end
 end
 
-%W(src public_html public_html/BBS public_html/BBS/#{node['bioc_version'][reldev]}
-public_html/BBS/#{node['bioc_version'][reldev]}/bioc
-public_html/BBS/#{node['bioc_version'][reldev]}/data-experiment).each do |dir|
+%W(src public_html public_html/BBS public_html/BBS/#{node['bioc_version'][reldev]}).each do |dir|
     directory "/home/biocbuild/#{dir}" do
         owner "biocbuild"
         group "biocbuild"
         mode "0755"
         action :create
     end
-end
-
-%W(bioc data-experiment).each do |repo|
-  %W(nodes OUTGOING report src svninfo).each do |dir|
-    directory "/home/biocbuild/public_html/BBS/#{node['bioc_version'][reldev]}/#{repo}/#{dir}" do
-      owner "biocbuild"
-      group "biocbuild"
-      mode "0755"
-      action :create
-    end
-  end
 end
 
 
@@ -196,8 +183,10 @@ dataexp_meat_url = "#{base_data_url}/#{branch}/experiment/pkgs"
 execute 'shallow MEAT0 checkout' do
   command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_meat_url} MEAT0"
   cwd bbsdir
-  user 'biocbuild'
+  user "biocbuild"
   group "biocbuild"
+  svn_username "readonly"
+  svn_password "readonly"
   not_if {File.exists? ("#{bbsdir}/MEAT0/.svn")}
 end
 
