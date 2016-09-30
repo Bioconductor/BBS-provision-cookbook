@@ -174,13 +174,8 @@ svn_meat_url = "#{base_url}/#{branch}/madman/Rpacks"
 dataexp_meat_url = "#{base_data_url}/#{branch}/experiment/pkgs"
 
 
-## FIXME! These svn co commands do NOT 'seed' the svn auth system so that
-## further actions (e.g. svn up) don't require authentication. Need to figure that out...
-## or change build system code to specify username/password (readonly/readonly is ok....)
-## try suggestions in
-# https://stackoverflow.com/questions/5062232/svn-wont-cache-credentials
-
-if ENV['TEST_KITCHEN'] #do shallow svn chekout in test kitchen
+## do shallow svn checkout in test kitchen
+if ENV['TEST_KITCHEN']
   svn_depth = "empty"
 else
   svn_depth = "infinity"
@@ -200,7 +195,7 @@ end
 execute 'MEAT0 checkout (data-experiment)' do
   command "svn co #{svn_opts} #{dataexp_meat_url} MEAT0"
   cwd dataexpdir
-  user 'biocbuild'
+  user "biocbuild"
   group "biocbuild"
   creates "MEAT0" #guard
 end
@@ -338,6 +333,7 @@ end
 execute "set R flags" do
   command "/home/biocbuild/BBS/utils/R-fix-flags.sh"
   user "biocbuild"
+  group "biocbuild"
   cwd "#{bbsdir}/R/etc"
   not_if {File.exists? "#{bbsdir}/R/etc/Makeconf.original"}
 end
@@ -353,6 +349,7 @@ end
 execute "install BiocInstaller" do
   command %Q(#{bbsdir}/R/bin/R -e "source('https://bioconductor.org/biocLite.R')")
   user "biocbuild"
+  group "biocbuild"
   not_if {File.exists? "#{bbsdir}/R/library/BiocInstaller"}
 end
 
@@ -360,6 +357,7 @@ if reldev == :dev
   execute "run useDevel()" do
     command %Q(#{bbsdir}/R/bin/R -e "BiocInstaller::useDevel()")
     user "biocbuild"
+    group "biocbuild"
     not_if %Q(#{bbsdir}/R/bin/R --slave -q -e "BiocInstaller:::IS_USER" | grep -q FALSE)
   end
 end
@@ -380,45 +378,51 @@ user "biocadmin" do
 end
 
 
-%W(bin InstalledPkgs tmp rdownloads
-PACKAGES/#{bioc_version}
+dirs = %W(
+bin InstalledPkgs tmp rdownloads
 PACKAGES/#{bioc_version}/biocViews
-PACKAGES/#{bioc_version}/bioc
 PACKAGES/#{bioc_version}/bioc/src/contrib
 PACKAGES/#{bioc_version}/bioc/bin/windows/contrib/#{r_version}
 PACKAGES/#{bioc_version}/bioc/bin/macosx/contrib/#{r_version}
 PACKAGES/#{bioc_version}/bioc/bin/macosx/mavericks/contrib/#{r_version}
-PACKAGES/#{bioc_version}/data/experiment
 PACKAGES/#{bioc_version}/data/experiment/src/contrib
 PACKAGES/#{bioc_version}/data/experiment/bin/windows/contrib/#{r_version}
 PACKAGES/#{bioc_version}/data/experiment/bin/macosx/contrib/#{r_version}
 PACKAGES/#{bioc_version}/data/experiment/bin/macosx/mavericks/contrib/#{r_version}
-PACKAGES/#{bioc_version}/data/annotation
 PACKAGES/#{bioc_version}/data/annotation/src/contrib
 PACKAGES/#{bioc_version}/data/annotation/bin/windows/contrib/#{r_version}
 PACKAGES/#{bioc_version}/data/annotation/bin/macosx/contrib/#{r_version}
 PACKAGES/#{bioc_version}/data/annotation/bin/macosx/mavericks/contrib/#{r_version}
-PACKAGES/#{bioc_version}/extra
 PACKAGES/#{bioc_version}/extra/src/contrib
 PACKAGES/#{bioc_version}/extra/bin/windows/contrib/#{r_version}
 PACKAGES/#{bioc_version}/extra/bin/macosx/contrib/#{r_version}
 PACKAGES/#{bioc_version}/extra/bin/macosx/mavericks/contrib/#{r_version}
 cron.log/#{bioc_version}
-).each do |dir|
+)
+
+def parent_dirs(dir)
+  path = ""
+  dir.split("/").collect{|d| path = path.empty? ? d : path+"/"+d; path}
+end
+
+## explicitly create parent directories in order to properly set owner/group
+dirs.collect{|dir| parent_dirs(dir)}.flatten.uniq do |dir|
   directory "/home/biocadmin/#{dir}" do
-    owner "biocadmin"
     action :create
-    recursive true
+    owner "biocadmin"
+    group "biocadmin"
   end
 end
 
 %W(BiocInstaller biocViews DynDoc graph).each do |pkg|
   directory "/home/biocadmin/InstalledPkgs/#{pkg}" do
     action :create
-    owner 'biocadmin'
+    owner "biocadmin"
+    group "biocadmin"
   end
   subversion "/home/biocadmin/InstalledPkgs/#{pkg}" do
     user "biocadmin"
+    group "biocadmin"
     svn_username "readonly"
     svn_password "readonly"
     repository "https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/#{pkg}"
@@ -428,6 +432,7 @@ end
 
 git "/home/biocadmin/BBS" do
   user "biocadmin"
+  group "biocadmin"
   repository node['bbs_repos']
   revision node['bbs_branch']
 end
@@ -435,12 +440,14 @@ end
 link "/home/biocadmin/manage-BioC-repos"  do
   to "/home/biocadmin/BBS/manage-BioC-repos"
   owner "biocadmin"
+  group "biocadmin"
 end
 
 %W(bioc data/annotation data/experiment extra).each do |dir|
   link "/home/biocadmin/PACKAGES/#{bioc_version}/#{dir}/bin/windows64" do
     to "/home/biocadmin/PACKAGES/#{bioc_version}/#{dir}/bin/windows"
     owner "biocadmin"
+    group "biocadmin"
   end
 end
 
@@ -453,12 +460,14 @@ end
 
 remote_file "/home/biocadmin/rdownloads/#{node['r_url'][reldev].split("/").last}" do
   source node['r_url'][reldev]
-  owner 'biocadmin'
+  owner "biocadmin"
+  group "biocadmin"
 end
 
 execute "untar R" do
   command "tar zxf /home/biocadmin/rdownloads/#{node['r_url'][reldev].split("/").last} && mv #{node['r_src_dir'][reldev]} /home/biocadmin/R-#{r_version}"
-  user 'biocadmin'
+  user "biocadmin"
+  group "biocadmin"
   cwd "/home/biocadmin/rdownloads"
   not_if {File.exists? "/home/biocadmin/R-#{r_version}"}
 end
@@ -467,20 +476,23 @@ end
 
 execute "build R" do
   command "./configure --enable-R-shlib && make"
-  user 'biocadmin'
+  user "biocadmin"
+  group "biocadmin"
   cwd "/home/biocadmin/R-#{r_version}/"
   not_if {File.exists? "/home/biocadmin/R-#{r_version}/config.log"}
 end
 
 # should really install these from ~/InstalledPkgs but this is easier.
 execute "install pkgs needed by biocadmin" do
-  user 'biocadmin'
+  user "biocadmin"
+  group "biocadmin"
   command %Q(/home/biocadmin/R-#{r_version}/bin/R -e "source('https://bioconductor.org/biocLite.R');biocLite(c('biocViews','DynDoc','graph','knitcitations'))")
   not_if {File.exists? "/home/biocadmin/R-#{r_version}/library/knitcitations"}
 end
 
 link "/home/biocadmin/bin/R-#{r_version}" do
-  owner 'biocadmin'
+  owner "biocadmin"
+  group "biocadmin"
   to "/home/biocadmin/R-#{r_version}/bin/R"
 end
 
@@ -604,13 +616,9 @@ end
 
 # get stuff from encrypted data bags
 
-directory "/home/biocbuild/.BBS" do
-  owner "biocbuild"
-  action :create
-end
-
 file "/home/biocbuild/.BBS/id_rsa" do
   owner "biocbuild"
+  group "biocbuild"
   mode "0400"
   content Chef::EncryptedDataBagItem.load('BBS',
     'incoming_private_key')['value']
@@ -618,6 +626,7 @@ end
 
 execute "add public key to authorized_keys" do
   user "biocbuild"
+  group "biocbuild"
   command "echo #{Chef::EncryptedDataBagItem.load('BBS',
     'incoming_public_key')['value']} >> /home/biocbuild/.ssh/authorized_keys"
   not_if %Q(grep -q "#{Chef::EncryptedDataBagItem.load('BBS',
@@ -647,6 +656,7 @@ end
 
 file "/home/biocbuild/.ssh/id_rsa" do
   owner "biocbuild"
+  group "biocbuild"
   mode "0400"
   content Chef::EncryptedDataBagItem.load('BBS',
     'outgoing_private_key')['value']
