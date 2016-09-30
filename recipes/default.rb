@@ -180,25 +180,30 @@ dataexp_meat_url = "#{base_data_url}/#{branch}/experiment/pkgs"
 ## try suggestions in
 # https://stackoverflow.com/questions/5062232/svn-wont-cache-credentials
 
-## enable plaintext password caching
-svn_opts = "--config-option servers:global:store-passwords=yes --config-option servers:global:store-plaintext-passwords=yes"
+if ENV['TEST_KITCHEN'] #do shallow svn chekout in test kitchen
+  svn_depth = "empty"
+else
+  svn_depth = "infinity"
+end
 
-execute 'shallow MEAT0 checkout' do
-  command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_opts} #{svn_meat_url} MEAT0"
+## enable plaintext password caching
+svn_opts = "--depth #{svn_depth} --non-interactive --username readonly --password readonly --config-option servers:global:store-passwords=yes --config-option servers:global:store-plaintext-passwords=yes"
+
+execute 'MEAT0 checkout' do
+  command "svn co #{svn_opts} #{svn_meat_url} MEAT0"
   cwd bbsdir
   user "biocbuild"
   group "biocbuild"
   creates "MEAT0" #guard
 end
 
-execute 'shallow MEAT0 checkout (data-experiment)' do
-  command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_opts} #{dataexp_meat_url} MEAT0"
+execute 'MEAT0 checkout (data-experiment)' do
+  command "svn co #{svn_opts} #{dataexp_meat_url} MEAT0"
   cwd dataexpdir
   user 'biocbuild'
   group "biocbuild"
   creates "MEAT0" #guard
 end
-
 
 control_group 'MEAT0 checkout group' do
   control 'MEAT0 checkout' do
@@ -209,8 +214,6 @@ control_group 'MEAT0 checkout group' do
     end
   end
 end
-
-
 
 
 %w(ack-grep libnetcdf-dev libhdf5-serial-dev sqlite libfftw3-dev libfftw3-doc
