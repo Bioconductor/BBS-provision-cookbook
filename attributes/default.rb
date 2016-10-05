@@ -22,6 +22,7 @@ default['vep_url'] = {dev: "https://codeload.github.com/Ensembl/ensembl-tools/zi
 default['vep_dir'] = {dev: "ensembl-tools-release-84", rel: "ensembl-tools-release-84"}
 default['argtable_url'] = "http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz"
 default['clustalo_url'] = "http://www.clustal.org/omega/clustal-omega-1.2.1.tar.gz"
+
 # cron info
 
 def starhash(minute: '*', hour: '*', day: '*', month: '*', weekday: '*')
@@ -29,39 +30,51 @@ def starhash(minute: '*', hour: '*', day: '*', month: '*', weekday: '*')
     month: month.to_s, weekday: weekday.to_s}
 end
 
-# biocbuild
+## biocbuild
 
-default['bioc_pre_run_time'] = {
-  rel:
-    starhash(minute: 20, hour: 19, weekday: '0,1,2,3,4,6'),
-  dev:
-    starhash(minute: 20, hour: 20, weekday: '0,1,2,3,4,6')
+default['cron']['pre_run_time']['bioc'] = {
+  rel: starhash(hour: 17, minute: 10),
+  dev: starhash(hour: 17, minute: 10)
 }
 
-default['bioc_run_time'] = {
-  rel:
-    starhash(minute: 20, hour: 20, weekday: '0,1,2,3,4,6'),
-  dev:
-    starhash(minute: 0, hour: 21, weekday: '0,1,2,3,4,6')
+default['cron']['run_time']['bioc'] = {
+  rel: starhash(hour: 17, minute: 55),
+  dev: starhash(hour: 17, minute: 55)
 }
 
-default['bioc_post_run_time'] = {
-  rel:
-    starhash(minute: 45, hour: 13, weekday: '0,1,2,3,4,6'),
-  dev:
-    starhash(minute: 15, hour: 14, weekday: '0,1,2,3,4,6')
+default['cron']['post_run_time']['bioc']= {
+  rel: starhash(hour: 14, minute: 55),
+  dev: starhash(hour: 14, minute: 55)
 }
 
-default['killproc_time'] = starhash(minute: 10)
-
-default['bioc_send_notifications_time'] = starhash(minute: 10, hour: 14, weekday: 2)
-
-default['test_coverage_time'] = {
-  rel: starhash(minute: 30, hour: 13, weekday: "0,1,2,4,5"),
-  dev: starhash(minute: 30, hour: 13, weekday: "0,1,2,4,5"),
+default['cron']['pre_run_time']['data-experiment'] = {
+  rel: starhash(hour: 9, minute: 20),
+  dev: starhash(hour: 9, minute: 20)
 }
 
-default['build_report_archive_time'] = {
-  rel: starhash(minute: 3, hour: 19, weekday: "0,1,2,3,4,6"),
-  dev: starhash(minute: 3, hour: 20, weekday: "0,1,2,3,4,6")
+default['cron']['run_time']['data-experiment'] = {
+  rel: starhash(hour: 9, minute: 55),
+  dev: starhash(hour: 9, minute: 55)
+}
+
+default['cron']['post_run_time']['data-experiment'] = {
+  rel: starhash(hour: 16, minute: 55),
+  dev: starhash(hour: 16, minute: 55)
+}
+
+## biocadmin
+
+default['cron']['propagate_time']['bioc'] = {
+  rel: starhash(hour: 15, minute: 35),
+  dev: starhash(hour: 15, minute: 35)
+}
+
+default['cron']['propagate_time']['data-experiment'] = {
+  rel: starhash(hour: 17, minute: 35),
+  dev: starhash(hour: 17, minute: 35)
+}
+
+default['cron']['propagate_time']['data-annotation'] = {
+  rel: starhash(hour: 5, minute: 20),
+  dev: starhash(hour: 5, minute: 20)
 }
