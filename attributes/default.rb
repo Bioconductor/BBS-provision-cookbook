@@ -32,49 +32,49 @@ end
 
 ## biocbuild
 
-default['cron']['pre_run_time']['bioc'] = {
+default['cron']['prerun']['bioc'] = {
   rel: starhash(hour: 17, minute: 10),
   dev: starhash(hour: 17, minute: 10)
 }
 
-default['cron']['run_time']['bioc'] = {
+default['cron']['run']['bioc'] = {
   rel: starhash(hour: 17, minute: 55),
   dev: starhash(hour: 17, minute: 55)
 }
 
-default['cron']['post_run_time']['bioc']= {
+default['cron']['postrun']['bioc']= {
   rel: starhash(hour: 14, minute: 55),
   dev: starhash(hour: 14, minute: 55)
 }
 
-default['cron']['pre_run_time']['data-experiment'] = {
+default['cron']['prerun']['data-experiment'] = {
   rel: starhash(hour: 9, minute: 20),
   dev: starhash(hour: 9, minute: 20)
 }
 
-default['cron']['run_time']['data-experiment'] = {
+default['cron']['run']['data-experiment'] = {
   rel: starhash(hour: 9, minute: 55),
   dev: starhash(hour: 9, minute: 55)
 }
 
-default['cron']['post_run_time']['data-experiment'] = {
+default['cron']['postrun']['data-experiment'] = {
   rel: starhash(hour: 16, minute: 55),
   dev: starhash(hour: 16, minute: 55)
 }
 
 ## biocadmin
 
-default['cron']['propagate_time']['bioc'] = {
+default['cron']['propagate']['bioc'] = {
   rel: starhash(hour: 15, minute: 35),
   dev: starhash(hour: 15, minute: 35)
 }
 
-default['cron']['propagate_time']['data-experiment'] = {
+default['cron']['propagate']['data-experiment'] = {
   rel: starhash(hour: 17, minute: 35),
   dev: starhash(hour: 17, minute: 35)
 }
 
-default['cron']['propagate_time']['data-annotation'] = {
+default['cron']['propagate']['data-annotation'] = {
   rel: starhash(hour: 5, minute: 20),
   dev: starhash(hour: 5, minute: 20)
 }
