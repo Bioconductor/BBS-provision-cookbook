@@ -406,7 +406,7 @@ def parent_dirs(dir)
 end
 
 ## explicitly create parent directories in order to properly set owner/group
-dirs.collect{|dir| parent_dirs(dir)}.flatten.uniq do |dir|
+dirs.collect{|dir| parent_dirs(dir)}.flatten.uniq.each do |dir|
   directory "/home/biocadmin/#{dir}" do
     action :create
     owner "biocadmin"
