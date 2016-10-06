@@ -15,7 +15,6 @@ end
 
 bioc_version = node['bioc_version'][reldev]
 cron = node['cron']
-hostname = node['desired_hostname'][reldev]
 
 
 ## biocbuild
@@ -35,8 +34,8 @@ end
     time = cron['pre_run_time'][type][reldev]
     user 'biocbuild'
     command %W{
-      cd /home/biocbuild/BBS/#{bioc_version}/bioc/#{hostname} &&
-      ./prerun.sh >>/home/biocbuild/bbs-#{bioc_version}-bioc/log/#{hostname}-$(date +\%Y\%m\%d)-prerun.log 2>&1
+      cd /home/biocbuild/BBS/#{bioc_version}/#{type}/`hostname` &&
+./prerun.sh >>/home/biocbuild/bbs-#{bioc_version}-#{type}/log/`hostname`-`date +\\%Y\\%m\\%d`-prerun.log 2>&1
       }.join(' ')
     minute time['minute']
     hour time['hour']
@@ -50,8 +49,8 @@ end
     user 'biocbuild'
     command %W{
       /bin/bash --login -c
-      'cd /home/biocbuild/BBS/#{bioc_version}/bioc/#{hostname} &&
-      ./run.sh >>/home/biocbuild/bbs-#{bioc_version}-bioc/log/#{hostname}-$(date +\%Y\%m\%d)-run.log 2>%1'
+      'cd /home/biocbuild/BBS/#{bioc_version}/#{type}/`hostname` &&
+      ./run.sh >>/home/biocbuild/bbs-#{bioc_version}-#{type}/log/`hostname`-`date +\\%Y\\%m\\%d`-run.log 2>%1'
       }.join(' ')
     minute time['minute']
     hour time['hour']
@@ -64,8 +63,8 @@ end
     time = cron['post_run_time'][type][reldev]
     user 'biocbuild'
     command %W{
-      cd /home/biocbuild/BBS/#{bioc_version}/bioc/#{hostname} &&
-      ./postrun.sh >>/home/biocbuild/bbs-#{bioc_version}-bioc/log/#{hostname}-$(date +\%Y\%m\%d)-postrun.log 2>&1
+      cd /home/biocbuild/BBS/#{bioc_version}/#{type}/`hostname` &&
+      ./postrun.sh >>/home/biocbuild/bbs-#{bioc_version}-#{type}/log/`hostname`-`date +\\%Y\\%m\\%d`-postrun.log 2>&1
       }.join(' ')
     minute time['minute']
     hour time['hour']
@@ -85,8 +84,8 @@ end
     user 'biocadmin'
     command %W{
       cd /home/biocadmin/manage-BioC-repos/#{bioc_version} &&
-      (./updateReposPkgs-#{type}.sh && ./prepareRepos-#{type}.sh && ./pushRepos-#{type}.sh)
-      >>/home/biocadmin/cron.log/#{bioc_version}/updateRepos-#{type}-`date +\%Y\%m\%d`.log 2>&1
+      (#{"./updateReposPkgs-#{type}.sh && " unless type=="data-annotation"}./prepareRepos-#{type}.sh && ./pushRepos-#{type}.sh)
+      >>/home/biocadmin/cron.log/#{bioc_version}/updateRepos-#{type}-`date +\\%Y\\%m\\%d`.log 2>&1
     }.join(' ')
     minute time['minute']
     hour time['hour']
