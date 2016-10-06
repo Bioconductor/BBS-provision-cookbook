@@ -23,6 +23,10 @@ hostname = node['desired_hostname'][reldev]
 cron "set PATH" do
   user 'biocbuild'
   path '/usr/bin:/bin:/usr/local/bin'
+  ## noop bash command that is never run (Feb 30) 
+  command ":"
+  month "2"
+  day "30"
 end
 
 %w(bioc data-experiment).each do |type|
