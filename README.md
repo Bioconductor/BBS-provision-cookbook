@@ -22,27 +22,41 @@ berks upload
 
 2. Run the bootstrap command, for example for malbec1 over VPN it is
 
-  ```
+  ```bash
   knife bootstrap 172.29.0.3 --ssh-user USER --ssh-password 'PASS' --sudo --use-sudo-password --node-name malbec1 --run-list 'role[bbs_devel_linux],recipe[BBS-provision-cookbook]'
   ```
+  
+### Verify the results
+
+```bash
+knife node list
+knife node show malbec2
+```
 
 ## Updating the node's configuration 
 
 Work on the cookbook locally. Once ready, upload it to the Chef server
 
-  ```
-  knife cookbook upload BBS-provision-cookbook
-  ```
+```bash
+knife cookbook upload BBS-provision-cookbook
+```
 
-and run the cookbook on your node
+and run the cookbook on your node.
 
-  ```
-  knife ssh ADDRESS 'sudo chef-client' --manual-list --ssh-user USER --ssh-password 'PASSWORD'
-  ```
+```bash
+knife ssh ADDRESS 'sudo chef-client' --manual-list --ssh-user USER --ssh-password 'PASSWORD'
+```
 
 ## Add a new recipe
 
-Generate the file with `chef generate recipe cron` and reference the new recipe in `recipes/default.rb`.
+Generate the file with `chef generate recipe crontab` and reference the new recipe in `recipes/default.rb`.
+
+```bash
+include_recipe 'BBS-provision-cookbook::crontab'
 ```
-include_recipe 'BBS-provision-cookbook::cron'
+
+Alternatively, add it to the node's runlist.
+
+```bash
+knife node run_list add malbec2 'recipe[BBS-provision-cookbook::crontab]'
 ```
