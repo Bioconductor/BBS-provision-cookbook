@@ -29,7 +29,7 @@ cron = node['cron']
       command %W{
         /bin/bash --login -c
         'cd /home/biocbuild/BBS/#{bioc_version}/#{type}/`hostname` &&
-        ./#{action}.sh >>/home/biocbuild/bbs-#{bioc_version}-#{type}/log/`hostname`-`date +\\%Y\\%m\\%d`-#{action}.log 2>%1'
+        ./#{action}.sh >>/home/biocbuild/bbs-#{bioc_version}-#{type}/log/`hostname`-`date +\\%Y\\%m\\%d`-#{action}.log 2>&1'
         }.join(' ')
       minute time['minute']
       hour time['hour']
