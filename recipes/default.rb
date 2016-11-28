@@ -228,7 +228,7 @@ end
     libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev byacc
     automake libmysqlclient-dev postgresql-server-dev-all pandoc-citeproc
     firefox graphviz python-pip libxml-simple-perl texlive-lang-european
-    libmpfr-dev tree python-yaml libmodule-build-perl
+    libmpfr-dev tree python-yaml libmodule-build-perl gdb
 ).each do |pkg|
     package pkg do
         action :install
