@@ -445,7 +445,7 @@ end
 
 %W(bioc data/annotation data/experiment extra).each do |dir|
   link "/home/biocadmin/PACKAGES/#{bioc_version}/#{dir}/bin/windows64" do
-    to "/home/biocadmin/PACKAGES/#{bioc_version}/#{dir}/bin/windows"
+    to "windows"
     owner "biocadmin"
     group "biocadmin"
   end
