@@ -221,12 +221,12 @@ end
     libjpeg62-dev libcairo2-dev libcurl4-gnutls-dev libtiff5-dev
     tcl8.5-dev tk8.5-dev libicu-dev libgsl2 libgsl0-dev
     libgtk2.0-dev gcj-4.8 openjdk-8-jdk texlive-latex-extra
-    texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
+    texlive-fonts-recommended libgl1-mesa-dev libglu1-mesa-dev
     htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
     libxpm-dev liblapack-dev libv8-3.14-dev libperl-dev
     libarchive-extract-perl libfile-copy-recursive-perl libcgi-pm-perl tabix
     libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev byacc
-    automake libmysqlclient-dev postgresql-server-dev-all pandoc-citeproc
+    automake libmysqlclient-dev postgresql-server-dev-all
     firefox graphviz python-pip libxml-simple-perl texlive-lang-european
     libmpfr-dev tree python-yaml libmodule-build-perl gdb biber
 ).each do |pkg|
@@ -250,8 +250,16 @@ package 'libnetcdf-dev'
 
 package 'git'
 
+# install a newer version of pandoc than available from the Ubuntu package repo
+pandoc_deb = node['pandoc_url'].split("/").last
 
+remote_file "/tmp/#{pandoc_deb}" do
+  source node['pandoc_url']
+end
 
+dpkg_package "pandoc" do
+  source "/tmp/#{pandoc_deb}"
+end
 
 execute "install jupyter" do
   command "pip install jupyter"
