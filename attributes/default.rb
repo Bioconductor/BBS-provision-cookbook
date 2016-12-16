@@ -34,8 +34,8 @@ end
 ## biocbuild
 
 default['cron']['prerun']['bioc'] = {
-  rel: starhash(hour: 17, minute: 10),
-  dev: starhash(hour: 17, minute: 10)
+  rel: starhash(hour: 17, minute: 20),
+  dev: starhash(hour: 17, minute: 15)
 }
 
 default['cron']['run']['bioc'] = {
@@ -44,8 +44,8 @@ default['cron']['run']['bioc'] = {
 }
 
 default['cron']['postrun']['bioc']= {
-  rel: starhash(hour: 14, minute: 55),
-  dev: starhash(hour: 14, minute: 55)
+  rel: starhash(hour: 15, minute: 55),
+  dev: starhash(hour: 15, minute: 55)
 }
 
 default['cron']['prerun']['data-experiment'] = {
@@ -66,8 +66,8 @@ default['cron']['postrun']['data-experiment'] = {
 ## biocadmin
 
 default['cron']['propagate']['bioc'] = {
-  rel: starhash(hour: 15, minute: 35),
-  dev: starhash(hour: 15, minute: 35)
+  rel: starhash(hour: 16, minute: 25),
+  dev: starhash(hour: 16, minute: 25)
 }
 
 default['cron']['propagate']['data-experiment'] = {
