@@ -23,6 +23,8 @@ default['vep_dir'] = {dev: "ensembl-tools-release-84", rel: "ensembl-tools-relea
 default['argtable_url'] = "http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz"
 default['clustalo_url'] = "http://www.clustal.org/omega/clustal-omega-1.2.1.tar.gz"
 default['pandoc_url'] = "https://github.com/jgm/pandoc/releases/download/1.19.1/pandoc-1.19.1-1-amd64.deb"
+default['git-lfs_url'] = "https://github.com/git-lfs/git-lfs/releases/download/v1.5.5/git-lfs-linux-amd64-1.5.5.tar.gz"
+default['git-lfs_dir'] = "git-lfs-1.5.5"
 
 # cron info
 

@@ -302,6 +302,19 @@ execute "build clustalo" do
   cwd "/tmp"
 end
 
+gitlfs_dir = node['git-lfs_dir']
+gitlfs_tarball = "#{gitlfs_dir}.tar.gz"
+
+remote_file "/tmp/#{gitlfs_tarball}" do
+  source node['git-lfs_url']
+end
+
+execute "install git-lfs" do
+  command "tar zxf #{gitlfs_tarball} && cd #{gitlfs_dir} && ./install.sh"
+  not_if "which git-lfs | grep -q git-lfs"
+  cwd "/tmp"
+end
+
 git "/home/biocbuild/BBS" do
   repository node['bbs_repos']
   revision node['bbs_branch']
