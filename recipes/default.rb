@@ -704,5 +704,5 @@ end
 
 
 
-# FIXME - set up pkgbuild stuff if this is a devel builder
+# FIXME - set up pkgbuild stuff (e.g., logrotate) if this is a devel builder
 # github_chef_key (from data bag)
