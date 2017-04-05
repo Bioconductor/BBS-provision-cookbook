@@ -507,7 +507,7 @@ end
 execute "install pkgs needed by biocadmin" do
   user "biocadmin"
   group "biocadmin"
-  command %Q(/home/biocadmin/R-#{r_version}/bin/R -e "source('https://bioconductor.org/biocLite.R');biocLite(c('biocViews','DynDoc','graph','knitcitations'))")
+  command %Q(/home/biocadmin/R-#{r_version}/bin/R -e "source('https://bioconductor.org/biocLite.R');biocLite(c('biocViews','DynDoc','graph','knitr','knitcitations'))")
   not_if {File.exists? "/home/biocadmin/R-#{r_version}/library/knitcitations"}
 end
 
