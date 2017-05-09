@@ -596,9 +596,9 @@ remote_file "/tmp/#{node['vep_dir'][reldev]}.zip" do
 end
 
 execute "install VEP" do
-  command "unzip #{node['vep_dir'][reldev]} && cd #{node['vep_dir'][reldev]}/scripts && mv ensembl-vep /usr/local/ && cd /usr/local/ensembl-vep && perl INSTALL.pl --NO_HTSLIB -a a"
+  command "unzip #{node['vep_dir'][reldev]} && mv #{node['vep_dir'][reldev]} /usr/local/ && cd /usr/local/#{node['vep_dir'][reldev]} && perl INSTALL.pl --NO_HTSLIB -a a"
   cwd "/tmp"
-  not_if {File.exists? "/usr/local/ensembl-vep"}
+  not_if {File.exists? "/usr/local/#{node['vep_dir'][reldev]}"}
 end
 
 # add /usr/local/variant_effect_predictor to path
