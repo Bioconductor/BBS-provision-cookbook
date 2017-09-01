@@ -230,7 +230,7 @@ end
     firefox graphviz python-pip libxml-simple-perl texlive-lang-european
     libmpfr-dev libudunits2-dev tree python-yaml libmodule-build-perl gdb biber
     python-sklearn python-numpy python-pandas python-h5py
-    libprotoc-dev libprotobuf-dev protobuf-compiler libapparmor-dev
+    libprotoc-dev libprotobuf-dev protobuf-compiler libapparmor-dev libgeos-dev
 ).each do |pkg|
     package pkg do
         action :install
