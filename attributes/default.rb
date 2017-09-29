@@ -19,9 +19,9 @@ default['libsbml_url']  = "https://s3.amazonaws.com/linux-provisioning/libSBML-5
 default['libsbml_dir'] = "libsbml-5.10.2"
 default['vienna_rna_url'] = "https://www.tbi.univie.ac.at/RNA/download/sourcecode/2_2_x/ViennaRNA-2.2.7.tar.gz"
 default['vienna_rna_dir'] = "ViennaRNA-2.2.7"
-default['vep_url'] = {dev: "https://github.com/Ensembl/ensembl-vep/archive/release/88.zip",
-  rel: "https://github.com/Ensembl/ensembl-vep/archive/release/88.zip"}
-default['vep_dir'] = {dev: "ensembl-vep-release-88", rel: "ensembl-vep-release-88"}
+default['vep_url'] = {dev: "https://github.com/Ensembl/ensembl-vep/archive/release/90.zip",
+  rel: "https://github.com/Ensembl/ensembl-vep/archive/release/90.zip"}
+default['vep_dir'] = {dev: "ensembl-vep-release-90", rel: "ensembl-vep-release-90"}
 default['argtable_url'] = "http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz"
 default['clustalo_url'] = "http://www.clustal.org/omega/clustal-omega-1.2.1.tar.gz"
 default['pandoc_url'] = "https://github.com/jgm/pandoc/releases/download/1.19.1/pandoc-1.19.1-1-amd64.deb"

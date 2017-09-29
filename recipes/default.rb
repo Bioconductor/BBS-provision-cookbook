@@ -604,11 +604,11 @@ execute "install VEP" do
   not_if {File.exists? "/usr/local/#{node['vep_dir'][reldev]}"}
 end
 
-# add /usr/local/variant_effect_predictor to path
+# add /usr/local/vep to path
 
 execute "add vep to path" do
-  command "echo 'export PATH=$PATH:/usr/local/ensembl-vep' >> /etc/profile"
-  not_if "grep -q variant_effect_predictor /etc/profile"
+  command "echo 'export PATH=$PATH:/usr/local/vep' >> /etc/profile"
+  not_if "grep -q vep /etc/profile"
 end
 
 # TODO s:
