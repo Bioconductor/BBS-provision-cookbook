@@ -25,7 +25,10 @@ berks upload
   ```bash
   knife bootstrap 172.29.0.3 --ssh-user USER --ssh-password 'PASS' --sudo --use-sudo-password --node-name malbec1 --run-list 'role[bbs_devel_linux],recipe[BBS-provision-cookbook]'
   ```
-  
+  or when key-based authentication is used
+  ```bash
+  knife bootstrap 54.243.13.96 --ssh-user ubuntu --identity-file ~/.ssh/id_rsa --sudo --use-sudo-password --node-name Andrzej_workflow_testing --run-list 'role[bbs_devel_linux],recipe[BBS-provision-cookbook]'
+  ```
 ### Verify the results
 
 ```bash
