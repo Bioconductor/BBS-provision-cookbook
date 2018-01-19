@@ -108,7 +108,7 @@ directory "/home/biocbuild/.BBS" do
     action :create
 end
 
-%w(log NodeInfo svninfo meat R).each do |dir|
+%w(log NodeInfo meat R).each do |dir|
     directory "#{bbsdir}/#{dir}" do
         owner "biocbuild"
         group "biocbuild"
@@ -138,7 +138,7 @@ directory dataexpdir do
 end
 
 
-%w(log NodeInfo svninfo meat STAGE2_tmp).each do |dir|
+%w(log NodeInfo meat STAGE2_tmp).each do |dir|
     directory "#{dataexpdir}/#{dir}" do
         owner "biocbuild"
         group "biocbuild"
@@ -167,47 +167,6 @@ if reldev == :dev
     branch = 'trunk'
 else
     branch = "branches/RELEASE_#{node['bioc_version'][reldev].sub(".", "_")}"
-end
-
-svn_meat_url = "#{base_url}/#{branch}/madman/Rpacks"
-
-dataexp_meat_url = "#{base_data_url}/#{branch}/experiment/pkgs"
-
-
-## do shallow svn checkout in test kitchen
-if ENV['TEST_KITCHEN']
-  svn_depth = "empty"
-else
-  svn_depth = "infinity"
-end
-
-## enable plaintext password caching
-svn_opts = "--depth #{svn_depth} --non-interactive --username readonly --password readonly --config-option servers:global:store-passwords=yes --config-option servers:global:store-plaintext-passwords=yes"
-
-execute 'MEAT0 checkout' do
-  command "svn co #{svn_opts} #{svn_meat_url} MEAT0"
-  cwd bbsdir
-  user "biocbuild"
-  group "biocbuild"
-  creates "MEAT0" #guard
-end
-
-execute 'MEAT0 checkout (data-experiment)' do
-  command "svn co #{svn_opts} #{dataexp_meat_url} MEAT0"
-  cwd dataexpdir
-  user "biocbuild"
-  group "biocbuild"
-  creates "MEAT0" #guard
-end
-
-control_group 'MEAT0 checkout group' do
-  control 'MEAT0 checkout' do
-    it 'should have .svn dir' do
-      expect(file("#{bbsdir}/MEAT0/.svn")).to exist
-      expect(file("#{bbsdir}/MEAT0/.svn")).to be_directory
-      expect(file("#{bbsdir}/MEAT0/.svn")).to be_owned_by "biocbuild"
-    end
-  end
 end
 
 
@@ -435,22 +394,6 @@ dirs.collect{|dir| parent_dirs(dir)}.flatten.uniq.each do |dir|
     action :create
     owner "biocadmin"
     group "biocadmin"
-  end
-end
-
-%W(BiocInstaller biocViews DynDoc graph).each do |pkg|
-  directory "/home/biocadmin/InstalledPkgs/#{pkg}" do
-    action :create
-    owner "biocadmin"
-    group "biocadmin"
-  end
-  subversion "/home/biocadmin/InstalledPkgs/#{pkg}" do
-    user "biocadmin"
-    group "biocadmin"
-    svn_username "readonly"
-    svn_password "readonly"
-    repository "https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/#{pkg}"
-    action :sync
   end
 end
 
