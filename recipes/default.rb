@@ -148,6 +148,25 @@ end
 end
 
 
+# workflows
+workflowdir = bbsdir.sub(/bioc$/, "workflows")
+
+directory workflowdir do
+  action :create
+  owner "biocbuild"
+  group "biocbuild"
+end
+
+
+%w(log NodeInfo meat STAGE2_tmp).each do |dir|
+    directory "#{workflowdir}/#{dir}" do
+        owner "biocbuild"
+        group "biocbuild"
+        mode "0755"
+        action :create
+    end
+end
+
 
 package "subversion"
 
