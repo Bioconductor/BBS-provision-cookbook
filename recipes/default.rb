@@ -399,6 +399,10 @@ PACKAGES/#{bioc_version}/extra/src/contrib
 PACKAGES/#{bioc_version}/extra/bin/windows/contrib/#{r_version}
 PACKAGES/#{bioc_version}/extra/bin/macosx/contrib/#{r_version}
 PACKAGES/#{bioc_version}/extra/bin/macosx/mavericks/contrib/#{r_version}
+PACKAGES/#{bioc_version}/workflows/src/contrib
+PACKAGES/#{bioc_version}/workflows/bin/windows/contrib/#{r_version}
+PACKAGES/#{bioc_version}/workflows/bin/macosx/contrib/#{r_version}
+PACKAGES/#{bioc_version}/workflows/bin/macosx/mavericks/contrib/#{r_version}
 cron.log/#{bioc_version}
 )
 
