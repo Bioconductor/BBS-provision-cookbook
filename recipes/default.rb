@@ -257,6 +257,11 @@ execute "install nbconvert" do
   not_if "pip freeze | grep -q nbconvert"
 end
 
+execute "install h5pyd" do
+  command "pip install h5pyd"
+  not_if "pip freeze | grep -q h5pyd"
+end
+
 argtable_tarball = node['argtable_url'].split('/').last
 argtable_dir = argtable_tarball.sub(".tar.gz", "")
 
