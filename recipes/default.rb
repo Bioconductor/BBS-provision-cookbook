@@ -53,7 +53,7 @@ end
 
 
 user "biocbuild" do
-    supports :manage_home => true
+    manage_home true
     home "/home/biocbuild"
     shell "/bin/bash"
     action :create
@@ -378,7 +378,7 @@ end
 # biocadmin
 
 user "biocadmin" do
-    supports :manage_home => true
+    manage_home true
     home "/home/biocadmin"
     shell "/bin/bash"
     action :create
