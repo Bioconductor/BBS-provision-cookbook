@@ -2,10 +2,11 @@
 
 ## Table of Contents
 
+- [Background](#Background)
 - [Setup Chef](#SetupChef)
-- [Cookbook to the Chef server](#CookbookToTheChefServer)
-    - [Upload](#Upload)
-    - [Dependencies](#Dependencies)
+- [The Chef server](#TheChefServer)
+    - [Upload cookbook](#UploadCookbook)
+    - [Resolve dependencies](#ResolveDependencies)
 - [Configure the node](#ConfigureTheNode)
     - [Bootstrapping](#Bootstrapping)
     - [Data bags](#DataBags)
@@ -13,9 +14,16 @@
 - [Update the node configuration](#UpdateTheNodeConfiguration)
 - [Add a new recipe](#AddANewRecipe)
 
-At the time this document was written, this recipe was not run
-on the primary build machines. Instead it is used to configure
-machines for testing changes to the Bioconductor Build System (BBS).
+
+<a name="Background"></a>
+## Background 
+
+The BBS-provision-cookbook is used to configure test machines
+when rolling out new Bioconductor Build System (BBS) features.
+It is not currently run on the primary build machines.
+
+As of July 2018 the default recipe takes about 1 hour and 10 minutes
+to complete.
 
 Some terminology:
 
@@ -48,14 +56,22 @@ tutorials at
 https://learn.chef.io/#/modules
 https://learn.chef.io/modules/learn-the-basics/ubuntu/aws/set-up-a-machine-to-manage#/
 
-<a name="CookbookToTheChefServer"></a>
-## Cookbook to the Chef server
+<a name="TheChefServer"></a>
+## The Chef server
 
 We use a hosted Chef server at https://manage.chef.io/. You should have
 an account and be able to log in to see the nodes and cookbooks.
 
-<a name="Upload"></a>
-### Upload
+The Chef server acts as a configuration hub. It stores cookbooks, polices
+applied to nodes and other metadata. Nodes use the `chef-client` executable
+to query the Chef server for configuration details. Configuration work
+is then done on the nodes (vs the server).
+
+All cookbooks, data and dependencies needed by a Chef recipe must be present
+on the Chef server so they are accessible by the node. 
+
+<a name="UploadCookbook"></a>
+### Upload cookbook
 
 The BBS-provision-cookbook should already be uploaded to the server. To see a
 list of all cookbooks from the command line:
@@ -71,8 +87,8 @@ Confirm the new version is on the server:
 
     knife cookbook list
 
-<a name="Dependencies"></a>
-### Dependencies
+<a name="ResolveDependencies"></a>
+### Resolve dependencies
 
 Chef itself does not resolve cookbook dependencies. All dependencies are 
 assumed to either be installed on the Chef server or available from the official 
@@ -201,13 +217,17 @@ forces execution of the run list.
 <a name="UpdateTheNodeConfiguration"></a>
 ## Update the node configuration 
 
-Work on the cookbook locally. Once ready, upload it to the Chef server:
+When changes are needed they should be made to the local cookbook and then
+uploaded to the Chef server:
 
     knife cookbook upload BBS-provision-cookbook
 
 Re-run the cookbook on the node:
 
     knife ssh 'name:val-test-malbec' 'sudo chef-client' --ssh-user ubuntu --ssh-identity-file ~/.ssh/vobencha-keypair.pem --attribute cloud.public_ipv4
+
+Good practice is to bump the version in metadata.rb for each substantial
+change and commit to GitHub.
 
 <a name="AddANewRecipe"></a>
 ## Add a new recipe
