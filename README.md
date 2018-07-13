@@ -221,9 +221,8 @@ forces execution of the run list.
 ## Redefine the central build node
 
 This Chef recipe configures a Linux build node and pulls in the BBS code base
-from GitHub. When we configure a node with
-this recipe for testing we (usually) want the newly configured node to play the
-role of the central builder.
+from GitHub. When we configure a node with this recipe we (usually) want the
+newly configured node to play the role of the central builder.
 
 To accomplish this, the `BBS_CENTRAL_RHOST` and `BBS_MEAT0_RHOST` variables in 
 the BBS code on the node need to reference the node's hostname instead of the
@@ -245,8 +244,8 @@ this returns malbec1:
 Set `BBS_CENTRAL_RHOST` to malbec1 instead of malbec1.bioconductor.org
 in these config.sh files:
 
-  /home/biocbuild/BBS/3.8/config.sh
-  /home/biocadmin/BBS/3.8/config.sh
+    /home/biocbuild/BBS/3.8/config.sh
+    /home/biocadmin/BBS/3.8/config.sh
 
 Make sure the following works:
 
@@ -266,11 +265,14 @@ in the appropriate sub-build config file:
 ## Crontabs
 
 The BBS-provision-cookbook has a separate recipe for generating crontabs for
-`biocbuild` and `biocadmin`. This is not run as part of the default recipe.
+the `biocbuild` and `biocadmin` users. This is not run as part of the default
+recipe.
 
-Cron tasks (day, time, event) are specified in
-BBS-provision-cookbook/attributes/default.rb. If this recipe is run, be sure
-the test system is isolated from the primary build system.
+The cron tasks details are specified in
+BBS-provision-cookbook/attributes/default.rb. If the
+BBS-provision-cookbook::crontab recipe is run, be sure to modify the BBS config
+files on the test nodes to avoid unwanted communication with the primary build
+machines.
 
 <a name="FurtherDevelopment"></a>
 ## Further Development
