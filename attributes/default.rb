@@ -1,12 +1,12 @@
 ## At release time these 4 need to be modified:
 ## 'bioc_version', 'r_version', 'r_url' and 'r_src_dir'
-default['bioc_version'] = {rel: '3.6', dev: '3.7'}
+default['bioc_version'] = {rel: '3.7', dev: '3.8'}
 default['r_version'] = {rel: '3.4', dev: '3.5'}
 default['r_url'] = {rel: 'https://cran.rstudio.com/src/base/R-3/R-3.4.3.tar.gz',
   dev: 'https://stat.ethz.ch/R/daily/R-devel.tar.gz'}
 default['r_src_dir'] = {rel: 'R-3.4.3', dev: 'R-devel'}
 
-default['desired_hostname'] = {rel: "malbec1", dev: "malbec2"}
+default['desired_hostname'] = {rel: "malbec2", dev: "malbec1"}
 default['time_zone'] = "America/New_York"
 default['bbs_repos'] = 'https://github.com/Bioconductor/BBS'
 default['bbs_branch'] = 'master'
