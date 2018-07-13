@@ -11,8 +11,11 @@
     - [Bootstrapping](#Bootstrapping)
     - [Data bags](#DataBags)
 - [Run the recipe](#RunTheRecipe)
-- [Update the node configuration](#UpdateTheNodeConfiguration)
-- [Add a new recipe](#AddANewRecipe)
+- [Redefine the central build node](#RedefineTheCentralBuildNode)
+- [Crontabs](#Crontabs)
+- [Further development](#FurtherDevelopment)
+    - [Updating node configuration](#UpdatingNodeConfiguration)
+    - [Adding a new recipe](#AddingANewRecipe)
 
 
 <a name="Background"></a>
@@ -214,11 +217,69 @@ forces execution of the run list.
 
     knife ssh 'name:val-test-malbec' 'sudo chef-client' --ssh-user ubuntu --ssh-identity-file ~/.ssh/vobencha-keypair.pem --attribute cloud.public_ipv4
 
-<a name="UpdateTheNodeConfiguration"></a>
-## Update the node configuration 
+<a name="RedefineTheCentralBuildNode"></a>
+## Redefine the central build node
 
-When changes are needed they should be made to the local cookbook and then
-uploaded to the Chef server:
+This Chef recipe configures a Linux build node and pulls in the BBS code base
+from GitHub. When we configure a node with
+this recipe for testing we (usually) want the newly configured node to play the
+role of the central builder.
+
+To accomplish this, the `BBS_CENTRAL_RHOST` and `BBS_MEAT0_RHOST` variables in 
+the BBS code on the node need to reference the node's hostname instead of the
+canonical central builder.
+
+In the context of the regular build system, the master builder 
+and all machines participating in the builds have `BBS_CENTRAL_RHOST` 
+and `BBS_MEAT0_RHOST` set to either malbec1.bioconductor.org or
+malbec2.bioconductor.org.
+
+The Chef recipe configures a node with hostname malbec1 or malbec2, without
+the `.bioconductor.org` extension.
+
+Confirm the hostname of the newly configured node. For example, we'll say
+this returns malbec1:
+
+    echo $HOSTNAME 
+
+Set `BBS_CENTRAL_RHOST` to malbec1 instead of malbec1.bioconductor.org
+in these config.sh files:
+
+  /home/biocbuild/BBS/3.8/config.sh
+  /home/biocadmin/BBS/3.8/config.sh
+
+Make sure the following works:
+
+  cd ~/BBS/3.8/bioc/malbec1
+  . config.sh
+  /usr/bin/ssh -qi /home/biocbuild/.BBS/id_rsa $BBS_CENTRAL_RHOST
+
+Set `BBS_MEAT0_RHOST` to malbec1 instead of malbec1.bioconductor.org
+in the appropriate sub-build config file:
+
+    /home/biocbuild/BBS/3.8/bioc/config.sh
+    /home/biocbuild/BBS/3.8/bioc-longtests/config.sh
+    /home/biocbuild/BBS/3.8/data-experiment/config.sh
+    /home/biocbuild/BBS/3.8/workflows/config.sh
+
+<a name="Crontabs"></a>
+## Crontabs
+
+The BBS-provision-cookbook has a separate recipe for generating crontabs for
+`biocbuild` and `biocadmin`. This is not run as part of the default recipe.
+
+Cron tasks (day, time, event) are specified in
+BBS-provision-cookbook/attributes/default.rb. If this recipe is run, be sure
+the test system is isolated from the primary build system.
+
+<a name="FurtherDevelopment"></a>
+## Further Development
+
+<a name="UpdatingNodeConfiguration"></a>
+### Updating node configuration 
+
+When developing, make changes to the local cookbook then uploaded to the 
+Chef server:
 
     knife cookbook upload BBS-provision-cookbook
 
@@ -229,8 +290,8 @@ Re-run the cookbook on the node:
 Good practice is to bump the version in metadata.rb for each substantial
 change and commit to GitHub.
 
-<a name="AddANewRecipe"></a>
-## Add a new recipe
+<a name="AddingANewRecipe"></a>
+### Adding a new recipe
 
 New recipes can be generated with `chef generate`, e.g., to create a 
 recipe "crontab":
