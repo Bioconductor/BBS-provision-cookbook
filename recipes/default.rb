@@ -432,8 +432,8 @@ git "/home/biocadmin/BBS" do
   revision node['bbs_branch']
 end
 
-link "/home/biocadmin/manage-BioC-repos"  do
-  to "/home/biocadmin/BBS/manage-BioC-repos"
+link "/home/biocadmin/propagation-pipe"  do
+  to "/home/biocadmin/BBS/propagation-pipe"
   owner "biocadmin"
   group "biocadmin"
 end
