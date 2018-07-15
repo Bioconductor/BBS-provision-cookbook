@@ -93,14 +93,14 @@ Confirm the new version is on the server:
 <a name="ResolveDependencies"></a>
 ### Resolve dependencies
 
-Chef itself does not resolve cookbook dependencies. All dependencies are 
-assumed to either be installed on the Chef server or available from the official 
-Chef Supermarket. 
+Chef itself does not resolve cookbook dependencies. When a recipe is run
+on a node, all dependencies are assumed to either be installed on the Chef 
+server or available from the official Chef Supermarket. 
 
-To get the necessary cookbook dependencies to the Chef server we use Berkshelf.
-Berkshelf is a dependency manager for Chef cookbooks and it is now included in
+Berkshelf is a dependency manager for Chef cookbooks and is included in
 the Chef DK. It (or something similar) is needed to get cookbook dependencies
-from locations other than the Chef Supermarket such as GitHub or a local path. 
+from locations other than the Chef Supermarket such as GitHub or a local path
+and upload them to the Chef server. 
 
 If you don't have Chef DK installed you can get Berkshelf with
 
