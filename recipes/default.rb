@@ -209,7 +209,7 @@ end
     libmpfr-dev libudunits2-dev tree python-yaml libmodule-build-perl gdb biber
     python-sklearn python-numpy python-pandas python-h5py
     libprotoc-dev libprotobuf-dev protobuf-compiler libapparmor-dev libgeos-dev
-    librdf0-dev libmagick++-dev libsasl2-dev
+    librdf0-dev libmagick++-dev libsasl2-dev libpoppler-cpp-devel
 ).each do |pkg|
     package pkg do
         action :install
