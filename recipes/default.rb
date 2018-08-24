@@ -207,7 +207,7 @@ end
     automake libmysqlclient-dev postgresql-server-dev-all
     firefox graphviz python-pip libxml-simple-perl texlive-lang-european
     libmpfr-dev libudunits2-dev tree python-yaml libmodule-build-perl gdb biber
-    python-sklearn python-numpy python-pandas python-h5py
+    python-numpy python-pandas python-h5py
     libprotoc-dev libprotobuf-dev protobuf-compiler libapparmor-dev libgeos-dev
     librdf0-dev libmagick++-dev libsasl2-dev libpoppler-cpp-devel
 ).each do |pkg|
@@ -260,6 +260,11 @@ end
 execute "install h5pyd" do
   command "pip install h5pyd"
   not_if "pip freeze | grep -q h5pyd"
+end
+
+execute "install scikit-learn" do
+  command "pip install scikit-learn"
+  not_if "pip freeze | grep -q scikit-learn"
 end
 
 argtable_tarball = node['argtable_url'].split('/').last
