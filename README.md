@@ -241,7 +241,7 @@ this returns malbec1:
 
     echo $HOSTNAME 
 
-Set `BBS_CENTRAL_RHOST` to malbec1 instead of malbec1.bioconductor.org
+Set `BBS_CENTRAL_RHOST` to "127.0.0.1" instead of malbec1.bioconductor.org
 in these config.sh files:
 
     /home/biocbuild/BBS/3.8/config.sh
@@ -260,6 +260,20 @@ in the appropriate sub-build config file:
     /home/biocbuild/BBS/3.8/bioc-longtests/config.sh
     /home/biocbuild/BBS/3.8/data-experiment/config.sh
     /home/biocbuild/BBS/3.8/workflows/config.sh
+
+To prevent posting the build report to master.bioconductor.org comment out 
+the rsync line in the postrun script:
+
+    #/usr/bin/rsync -ave 'ssh -o StrictHostKeyChecking=no' "$BBS_REPORT_PATH/" "$BBS_PUBLISHED_REPORT_DEST_DIR/"
+
+For extra safety comment out BBS_PUBLISHED_REPORT_DEST_DIR in
+
+    /home/biocbuild/BBS/3.8/config.sh
+
+After running postrun, the build report will be available at:
+
+    http://publicIP/BBS/3.8/report/  # must be http (not https)
+
 
 <a name="Crontabs"></a>
 ## Crontabs
