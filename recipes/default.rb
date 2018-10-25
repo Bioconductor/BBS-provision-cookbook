@@ -210,7 +210,7 @@ end
     python-numpy python-pandas python-h5py
     libprotoc-dev libprotobuf-dev protobuf-compiler libapparmor-dev libgeos-dev
     librdf0-dev libmagick++-dev libsasl2-dev libpoppler-cpp-devel
-    texlive-pstricks texlive-pstricks-doc
+    texlive-pstricks texlive-pstricks-doc texlive-luatex
 ).each do |pkg|
     package pkg do
         action :install
