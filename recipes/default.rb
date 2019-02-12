@@ -269,6 +269,11 @@ execute "install scikit-learn" do
   not_if "pip freeze | grep -q scikit-learn"
 end
 
+execute "install tensorflow" do
+  command "pip install tensorflow"
+  not_if "pip freeze | grep -q tensorflow"
+end
+
 argtable_tarball = node['argtable_url'].split('/').last
 argtable_dir = argtable_tarball.sub(".tar.gz", "")
 
