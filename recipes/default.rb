@@ -274,6 +274,11 @@ execute "install tensorflow" do
   not_if "pip freeze | grep -q tensorflow"
 end
 
+execute "install mofapy" do
+  command "pip install mofapy"
+  not_if "pip freeze | grep -q mofapy"
+end
+
 argtable_tarball = node['argtable_url'].split('/').last
 argtable_dir = argtable_tarball.sub(".tar.gz", "")
 
