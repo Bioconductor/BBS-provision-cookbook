@@ -274,6 +274,11 @@ execute "install tensorflow" do
   not_if "pip freeze | grep -q tensorflow"
 end
 
+execute "install cwltool" do
+  command "pip install cwltool"
+  not_if "pip freeze | grep -q cwltool"
+end
+
 execute "install mofapy" do
   command "pip install mofapy"
   not_if "pip freeze | grep -q mofapy"
