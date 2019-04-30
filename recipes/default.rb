@@ -211,7 +211,7 @@ end
     libprotoc-dev libprotobuf-dev protobuf-compiler libapparmor-dev libgeos-dev
     librdf0-dev libmagick++-dev libsasl2-dev libpoppler-cpp-devel
     texlive-pstricks texlive-pstricks-doc texlive-luatex
-    libglpk-dev libgdal-dev
+    libglpk-dev libgdal-dev ocl-icd-opencl-dev
 ).each do |pkg|
     package pkg do
         action :install
